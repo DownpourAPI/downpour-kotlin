@@ -1,5 +1,4 @@
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.DataPart
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import interfaces.SeedboxController
@@ -84,8 +83,20 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun addTorrentFile(torrentFilePath: String): DownpourResult {
-        TODO("Not yet implemented")
+    override fun uploadTorrentFile(torrentFile: File): String? {
+        val response = Fuel.upload("${apiEndpoint}/upload")
+            .add(FileDataPart(torrentFile, name = "file", filename = torrentFile.name))
+            .response()
+            .third
+
+        val (data, error) = response
+
+        return if (data != null) {
+            val torrentUploadResponse = json.parse(TorrentUploadResponse.serializer(), data.toString(Charsets.UTF_8))
+            torrentUploadResponse.files[0]
+        } else {
+            null
+        }
     }
 
     override fun getTorrentDetails(torrentHash: String): DelugeTorrentInfo {
