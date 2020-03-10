@@ -1,13 +1,14 @@
 package interfaces
 
 import models.*
+import java.io.File
 
 interface SeedboxController {
     fun login(password: String): String
 
-    fun addMagnet(magnet: String): DownpourResult
+    fun addTorrent(magnetLinkOrRemotePath: String): DownpourResult
 
-    fun addTorrentFile(torrentFilePath: String): DownpourResult
+    fun uploadTorrentFile(torrentFile: File): String?
 
     fun getTorrentDetails(torrentHash: String): DelugeTorrentInfo
 

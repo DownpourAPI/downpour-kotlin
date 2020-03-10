@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.UnstableDefault
-import models.DelugeResponse
 import models.DownpourResult
 import models.Torrent
 import org.junit.jupiter.api.Nested
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.assertj.core.api.Assertions.*
+import java.io.File
 
 @TestInstance(Lifecycle.PER_CLASS)
 @UnstableDefault
@@ -90,7 +90,7 @@ class DelugeWebTests {
     }
 
     @Nested
-    inner class AddMagnet {
+    inner class AddTorrent {
         @Test
         fun `payload is stringified correctly`() {
             val returnedJson = """{"id": 1, "result": null, "error": null}"""
@@ -101,7 +101,7 @@ class DelugeWebTests {
             FuelManager.instance.client = client
             val expectedPayload = """{"id":1,"method":"web.add_torrents","params":[[{"path":"TESTMAGNET","options":{"filePriorities":[],"addPaused":false,"compactAllocation":false,"downloadLocation":"/home32/reteph/downloads/","moveOnCompletion":false,"moveToLocation":null,"maxConnections":-1,"maxDownloadSpeed":-1,"maxUploadSlots":-1,"maxUploadSpeed":-1,"prioritizeFirstLastPieces":false}}]]}"""
 
-            testSession.addMagnet("TESTMAGNET")
+            testSession.addTorrent("TESTMAGNET")
 
             verify(exactly = 1) {
                 client.executeRequest(
@@ -122,7 +122,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
 
             assertThat(actual)
                 .isEqualTo(DownpourResult.SUCCESS)
@@ -137,7 +137,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
             assertThat(actual)
                 .isEqualTo(DownpourResult.FAILURE)
         }
@@ -149,7 +149,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
 
             assertThat(actual).isEqualTo(DownpourResult.FAILURE)
         }
@@ -285,60 +285,64 @@ class DelugeWebTests {
         }
     }
 
-
-    //////////////////////////
-    // NOT YET IMPLEMENTED: //
-    //////////////////////////
-
     @Nested
-    inner class AddTorrentFile {
+    inner class UploadTorrentFile {
         @Test
-        fun `payload is stringified correctly`() {
-            assertThat(true).isFalse()
-        }
-
-        @Test
-        fun `success result returns SUCCESS enum`() {
-            val returnedJson = """{"id": 1, "result": true, "error": null}"""
+        fun `success result returns location of uploaded file`() {
+            val mockRemoteLocation = "/tmp/mocklocation.torrent"
+            val returnedJson = """{"files": ["$mockRemoteLocation"],"success": true}"""
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 200
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addTorrentFile("/path/to/file")
+            val mockFile = File.createTempFile("tmp", ".torrent")
 
-            assertThat(actual)
-                .isEqualTo(DownpourResult.SUCCESS)
+            val returnedLocation = testSession.uploadTorrentFile(mockFile)
+
+            assertThat(returnedLocation)
+                .isEqualTo(mockRemoteLocation)
         }
 
 
         @Test
-        fun `failure result returns FAILURE enum`() {
-            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+        fun `failure result returns null`() {
+            val returnedJson = """{"files": [],"success": false}"""
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 200
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addTorrentFile("/path/to/file")
-            assertThat(actual)
-                .isEqualTo(DownpourResult.FAILURE)
+            val mockFile = File.createTempFile("tmp", ".torrent")
+
+            val returnedLocation = testSession.uploadTorrentFile(mockFile)
+
+            assertThat(returnedLocation)
+                .isNull()
         }
 
         @Test
-        fun `500 error returns FAILURE enum`() {
+        fun `500 error returns null`() {
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 500
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.addTorrentFile("/path/to/file")
+            val mockFile = File.createTempFile("tmp", ".torrent")
 
-            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+            val returnedLocation = testSession.uploadTorrentFile(mockFile)
+
+            assertThat(returnedLocation)
+                .isNull()
         }
     }
+
+
+    //////////////////////////
+    // NOT YET IMPLEMENTED: //
+    //////////////////////////
 
     @Nested
     inner class GetSingleTorrent {

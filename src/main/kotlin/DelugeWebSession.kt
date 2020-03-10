@@ -1,5 +1,4 @@
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.DataPart
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import interfaces.SeedboxController
@@ -58,11 +57,11 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun addMagnet(magnet: String): DownpourResult {
-        val magnetPayload = AddMagnetPayload(magnet)
+    override fun addTorrent(magnetLinkOrRemotePath: String): DownpourResult {
+        val magnetPayload = AddTorrentPayload(magnetLinkOrRemotePath)
 
         val response = Fuel.post(apiEndpoint)
-            .jsonBody(json.stringify(AddMagnetPayload.serializer(), magnetPayload))
+            .jsonBody(json.stringify(AddTorrentPayload.serializer(), magnetPayload))
             .header("User-Agent", defaultUserAgent)
             .header("Cookie", cookie)
             .response()
@@ -72,8 +71,8 @@ class DelugeWebSession: SeedboxController {
         val (data, error) = response
 
         return if (data != null) {
-            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
-            when (addMagnetResponse.result) {
+            val addTorrentResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (addTorrentResponse.result) {
                 true -> DownpourResult.SUCCESS
                 false -> DownpourResult.FAILURE
                 null -> DownpourResult.FAILURE
@@ -84,8 +83,23 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun addTorrentFile(torrentFilePath: String): DownpourResult {
-        TODO("Not yet implemented")
+    override fun uploadTorrentFile(torrentFile: File): String? {
+        val response = Fuel.upload("${apiEndpoint}/upload")
+            .add(FileDataPart(torrentFile, name = "file", filename = torrentFile.name))
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (data != null) {
+            val torrentUploadResponse = json.parse(TorrentUploadResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (!torrentUploadResponse.success || torrentUploadResponse.files.isNullOrEmpty()) {
+                return null
+            }
+            return torrentUploadResponse.files[0]
+        } else {
+            return null
+        }
     }
 
     override fun getTorrentDetails(torrentHash: String): DelugeTorrentInfo {
