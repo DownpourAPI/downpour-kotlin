@@ -219,10 +219,16 @@ class DelugeWebSession: SeedboxController {
             .jsonBody(json.stringify(ResumeTorrentPayload.serializer(), payload))
             .response()
             .third
+
         val (data, error) = response
 
         return if (data != null) {
-            DownpourResult.SUCCESS
+            val jsonResponse = data.toString(Charsets.UTF_8)
+            val pauseTorrentResult: DelugeResponse = json.parse(DelugeResponse.serializer(), jsonResponse)
+            when (pauseTorrentResult.error) {
+                null -> DownpourResult.SUCCESS
+                else -> DownpourResult.FAILURE
+            }
         } else {
             println(error)
             DownpourResult.FAILURE
