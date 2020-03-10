@@ -91,11 +91,14 @@ class DelugeWebSession: SeedboxController {
 
         val (data, error) = response
 
-        return if (data != null) {
+        if (data != null) {
             val torrentUploadResponse = json.parse(TorrentUploadResponse.serializer(), data.toString(Charsets.UTF_8))
-            torrentUploadResponse.files[0]
+            if (!torrentUploadResponse.success || torrentUploadResponse.files.isNullOrEmpty()) {
+                return null
+            }
+            return torrentUploadResponse.files[0]
         } else {
-            null
+            return null
         }
     }
 
