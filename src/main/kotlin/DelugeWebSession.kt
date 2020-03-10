@@ -58,11 +58,11 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun addMagnet(magnet: String): DownpourResult {
-        val magnetPayload = AddMagnetPayload(magnet)
+    override fun addTorrent(magnetLinkOrRemotePath: String): DownpourResult {
+        val magnetPayload = AddTorrentPayload(magnetLinkOrRemotePath)
 
         val response = Fuel.post(apiEndpoint)
-            .jsonBody(json.stringify(AddMagnetPayload.serializer(), magnetPayload))
+            .jsonBody(json.stringify(AddTorrentPayload.serializer(), magnetPayload))
             .header("User-Agent", defaultUserAgent)
             .header("Cookie", cookie)
             .response()
@@ -72,8 +72,8 @@ class DelugeWebSession: SeedboxController {
         val (data, error) = response
 
         return if (data != null) {
-            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
-            when (addMagnetResponse.result) {
+            val addTorrentResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (addTorrentResponse.result) {
                 true -> DownpourResult.SUCCESS
                 false -> DownpourResult.FAILURE
                 null -> DownpourResult.FAILURE

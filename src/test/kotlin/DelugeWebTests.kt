@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.UnstableDefault
-import models.DelugeResponse
 import models.DownpourResult
 import models.Torrent
 import org.junit.jupiter.api.Nested
@@ -101,7 +100,7 @@ class DelugeWebTests {
             FuelManager.instance.client = client
             val expectedPayload = """{"id":1,"method":"web.add_torrents","params":[[{"path":"TESTMAGNET","options":{"filePriorities":[],"addPaused":false,"compactAllocation":false,"downloadLocation":"/home32/reteph/downloads/","moveOnCompletion":false,"moveToLocation":null,"maxConnections":-1,"maxDownloadSpeed":-1,"maxUploadSlots":-1,"maxUploadSpeed":-1,"prioritizeFirstLastPieces":false}}]]}"""
 
-            testSession.addMagnet("TESTMAGNET")
+            testSession.addTorrent("TESTMAGNET")
 
             verify(exactly = 1) {
                 client.executeRequest(
@@ -122,7 +121,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
 
             assertThat(actual)
                 .isEqualTo(DownpourResult.SUCCESS)
@@ -137,7 +136,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
             assertThat(actual)
                 .isEqualTo(DownpourResult.FAILURE)
         }
@@ -149,7 +148,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.addMagnet("TESTMAGNET")
+            val actual = testSession.addTorrent("TESTMAGNET")
 
             assertThat(actual).isEqualTo(DownpourResult.FAILURE)
         }
