@@ -371,22 +371,64 @@ class DelugeWebTests {
     inner class Pause {
         @Test
         fun `payload is stringified correctly`() {
-            assertThat(true).isFalse()
+            val returnedJson = """{"id": 1, "result": null, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+            val expectedPayload = """{"id":1,"method":"core.pause_torrent","params":[["TEST_HASH"]]}"""
+
+            testSession.pauseTorrent("TEST_HASH")
+
+            verify(exactly = 1) {
+                client.executeRequest(
+                    withArg {
+                        assertThat(it.body.asString("application/json").replace(" ", ""))
+                            .isEqualTo(expectedPayload)
+                    }
+                )
+            }
         }
 
         @Test
         fun `success result returns SUCCESS enum`() {
-            assertThat(true).isFalse()
+            val returnedJson = """{"id": 1, "result": true, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.pauseTorrent("TEST_HASH")
+
+            assertThat(actual).isEqualTo(DownpourResult.SUCCESS)
         }
 
         @Test
         fun `failure result returns FAILURE enum`() {
-            assertThat(true).isFalse()
+            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.pauseTorrent("TEST_HASH")
+
+            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
         }
 
         @Test
-        fun `500 error throws FuelError`() {
-            assertThat(true).isFalse()
+        fun `500 error returns FAILURE enum`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            val actual = testSession.pauseTorrent("TEST_HASH")
+
+            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
         }
     }
 
