@@ -102,8 +102,23 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun getTorrentDetails(torrentHash: String): DelugeTorrentInfo {
-        TODO("Not implemented")
+    override fun getTorrentDetails(torrentHash: String): Torrent? {
+        val singleTorrentPayload = GetTorrentDetailsPayload.defaultPayload(torrentHash)
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", cookie)
+            .header("User-Agent", defaultUserAgent)
+            .jsonBody(singleTorrentPayload.toString())
+            .response()
+
+        val (data, error) = response.third
+
+        return if (data != null) {
+            val jsonResponse = data.toString(Charsets.UTF_8)
+            val torrentDetailsResponse = json.parse(GetTorrentResponse.serializer(), jsonResponse)
+            torrentDetailsResponse.result
+        } else {
+            throw error!!
+        }
     }
 
     override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {

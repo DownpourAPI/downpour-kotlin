@@ -7,7 +7,7 @@ data class MagnetOptions(
     val filePriorities: List<Int> = listOf(1),
     val addPaused: Boolean = false,
     val compactAllocation: Boolean = false,
-    val downloadLocation: String = "/home32/reteph/downloads/",
+    val downloadLocation: String = "",
     val moveOnCompletion: Boolean = false,
     val moveToLocation: String? = null,
     val maxConnections: Int = -1,

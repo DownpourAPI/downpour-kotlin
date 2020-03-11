@@ -10,7 +10,7 @@ interface SeedboxController {
 
     fun uploadTorrentFile(torrentFile: File): String?
 
-    fun getTorrentDetails(torrentHash: String): DelugeTorrentInfo
+    fun getTorrentDetails(torrentHash: String): Torrent?
 
     fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult
 
