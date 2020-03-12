@@ -31,7 +31,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"web.update_ui","params":[["queue","name","total_wanted","state","progress","num_seeds","total_seeds","num_peers","total_peers","download_payload_rate","upload_payload_rate","eta","ratio","distributed_copies","is_auto_managed","time_added","tracker_host","save_path","total_done","total_uploaded","max_download_speed","max_upload_speed","seeds_peers_ratio"],{}]}"""
+            val expectedPayload = """{"id":1,"method":"core.get_torrents_status","params":[{},[]]}"""
 
             testSession.getAllTorrents()
 
