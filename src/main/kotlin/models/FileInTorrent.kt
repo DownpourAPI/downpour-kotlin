@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class FileInTorrent(
     val index: Int,
     val path: String,
-    val offset: Int,
+    val offset: Long,
     val size: Long
 )
