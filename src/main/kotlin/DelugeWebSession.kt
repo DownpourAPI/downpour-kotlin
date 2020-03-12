@@ -14,18 +14,22 @@ class DelugeWebSession: SeedboxController {
     private val defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0"
     private var requestId = 1
     private var cookie: String = ""
-    private var apiEndpoint: String
+    private val apiEndpoint: String
+    private val remoteDownloadLocation: String
 
     private val json = Json(JsonConfiguration(strictMode = false))
 
 
+    // TODO: Remove this and separate tests properly.
     internal constructor(unitTestCookie: String) {
         this.cookie = unitTestCookie
         this.apiEndpoint = "http://unit-test"
+        this.remoteDownloadLocation = "/path/to/downloads/"
     }
 
-    constructor(apiEndpoint: String, password: String) {
+    constructor(apiEndpoint: String, password: String, remoteDownloadLocation: String) {
         this.apiEndpoint = apiEndpoint
+        this.remoteDownloadLocation = remoteDownloadLocation
         login(password)
     }
 
@@ -59,7 +63,7 @@ class DelugeWebSession: SeedboxController {
     }
 
     override fun addTorrent(magnetLinkOrRemotePath: String): DownpourResult {
-        val magnetPayload = AddTorrentPayload(magnetLinkOrRemotePath)
+        val magnetPayload = AddTorrentPayload(magnetLinkOrRemotePath, this.remoteDownloadLocation)  // TODO: Look into default Download Locations
 
         val response = Fuel.post(apiEndpoint)
             .jsonBody(json.stringify(AddTorrentPayload.serializer(), magnetPayload))
