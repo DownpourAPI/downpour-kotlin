@@ -169,14 +169,8 @@ class DelugeWebSession: SeedboxController {
             if (torrentResponse.error != null) { throw Error(torrentResponse.error.message) }
             if (torrentResponse.result == null) { return listOf() }
 
-            for (torrent in torrentResponse.result.torrents) {
-                allTorrents.add(
-                    Torrent(
-                        torrent.key,
-                        torrent.value.progress,
-                        torrent.value.name
-                    )
-                )
+            for (torrent in torrentResponse.result.values) {
+                allTorrents.add(torrent)
             }
         } else {
             throw error!!
