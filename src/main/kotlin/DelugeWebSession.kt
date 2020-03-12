@@ -152,7 +152,7 @@ class DelugeWebSession: SeedboxController {
     }
 
     override fun getAllTorrents(): List<Torrent> {
-        val allTorrentsPayload = GetAllTorrentsPayload.defaultPayload()
+        val allTorrentsPayload = GetAllTorrentsPayload()
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .header("User-Agent", defaultUserAgent)
