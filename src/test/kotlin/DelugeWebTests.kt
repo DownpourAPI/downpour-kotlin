@@ -416,7 +416,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.pause_torrent","params":[["TEST_HASH"]]}"""
+            val expectedPayload = """{"id":1,"method":"core.resume_torrent","params":[["TEST_HASH"]]}"""
 
             testSession.resumeTorrent("TEST_HASH")
 
