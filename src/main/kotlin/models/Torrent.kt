@@ -100,7 +100,7 @@ data class Torrent(
     val files: List<FileInTorrent>,
 
     @SerialName("total_done")
-    val totalDone: Int,
+    val totalDone: Long,
 
     @SerialName("num_pieces")
     val numberOfPieces: Int,
@@ -130,7 +130,7 @@ data class Torrent(
     val pieceLength: Int,
 
     @SerialName("all_time_download")
-    val allTimeDownload: Int,
+    val allTimeDownload: Long,
 
     @SerialName("move_on_completed_path")
     val moveOnCompletedPath: String,

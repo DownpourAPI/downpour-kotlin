@@ -152,41 +152,32 @@ class DelugeWebSession: SeedboxController {
     }
 
     override fun getAllTorrents(): List<Torrent> {
-        TODO("Not yet implemented")
+        val allTorrentsPayload = GetAllTorrentsPayload()
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", cookie)
+            .header("User-Agent", defaultUserAgent)
+            .jsonBody(allTorrentsPayload.toString())
+            .response()
+
+        val (data, error) = response.third
+
+        val allTorrents = arrayListOf<Torrent>()
+        if (data != null) {
+            val jsonResponse = data.toString(Charsets.UTF_8)
+            val torrentResponse: GetAllTorrentsResponse = json.parse(GetAllTorrentsResponse.serializer(), jsonResponse)
+
+            if (torrentResponse.error != null) { throw Error(torrentResponse.error.message) }
+            if (torrentResponse.result == null) { return listOf() }
+
+            for (torrent in torrentResponse.result.values) {
+                allTorrents.add(torrent)
+            }
+        } else {
+            throw error!!
+        }
+
+        return allTorrents
     }
-//    override fun getAllTorrents(): List<Torrent> {
-//        val allTorrentsPayload = GetAllTorrentsPayload.defaultPayload()
-//        val response = Fuel.post(apiEndpoint)
-//            .header("Cookie", cookie)
-//            .header("User-Agent", defaultUserAgent)
-//            .jsonBody(allTorrentsPayload.toString())
-//            .response()
-//
-//        val (data, error) = response.third
-//
-//        val allTorrents = arrayListOf<Torrent>()
-//        if (data != null) {
-//            val jsonResponse = data.toString(Charsets.UTF_8)
-//            val torrentResponse: GetAllTorrentsResponse = json.parse(GetAllTorrentsResponse.serializer(), jsonResponse)
-//
-//            if (torrentResponse.error != null) { throw Error(torrentResponse.error.message) }
-//            if (torrentResponse.result == null) { return listOf() }
-//
-//            for (torrent in torrentResponse.result.torrents) {
-//                allTorrents.add(
-//                    Torrent(
-//                        torrent.key,
-//                        torrent.value.progress,
-//                        torrent.value.name
-//                    )
-//                )
-//            }
-//        } else {
-//            throw error!!
-//        }
-//
-//        return allTorrents
-//    }
 
     override fun removeTorrent(torrentHash: String, withData: Boolean): DownpourResult {
         val payload = RemoveTorrentPayload.defaultPayload(torrentHash, withData)

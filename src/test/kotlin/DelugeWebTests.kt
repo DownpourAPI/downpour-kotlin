@@ -31,7 +31,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"web.update_ui","params":[["queue","name","total_wanted","state","progress","num_seeds","total_seeds","num_peers","total_peers","download_payload_rate","upload_payload_rate","eta","ratio","distributed_copies","is_auto_managed","time_added","tracker_host","save_path","total_done","total_uploaded","max_download_speed","max_upload_speed","seeds_peers_ratio"],{}]}"""
+            val expectedPayload = """{"id":1,"method":"core.get_torrents_status","params":[{},[]]}"""
 
             testSession.getAllTorrents()
 
@@ -45,25 +45,253 @@ class DelugeWebTests {
             }
         }
 
-//        @Test
-//        fun `response is parsed correctly - returns a List of Torrents`() {
-//            val client = mockk<Client>()
-//            val returnedJson = """{"id":1,"result":{"stats":{"upload_protocol_rate":78799,"max_upload":-1.0,"download_protocol_rate":75432,"download_rate":2353262,"has_incoming_connections":true,"num_connections":4,"max_download":-1.0,"upload_rate":0,"dht_nodes":386,"free_space":3419688734720,"max_num_connections":50},"connected":true,"torrents":{"hash1":{"max_download_speed":-1.0,"upload_payload_rate":0,"download_payload_rate":2353262,"num_peers":0,"ratio":0.0,"total_peers":2,"max_upload_speed":-1.0,"state":"Downloading","distributed_copies":2.0220000743865967,"save_path":"/save/directory/path","progress":100.0,"time_added":1582554880.0,"tracker_host":"tracker.host","total_uploaded":0,"total_done":40370254,"total_wanted":1771415839,"total_seeds":6,"seeds_peers_ratio":3.0,"num_seeds":2,"name":"Test Torrent One","is_auto_managed":true,"queue":0,"eta":735},"hash2":{"max_download_speed":-1.0,"upload_payload_rate":0,"download_payload_rate":2353262,"num_peers":0,"ratio":0.0,"total_peers":2,"max_upload_speed":-1.0,"state":"Downloading","distributed_copies":2.0220000743865967,"save_path":"/save/directory/path","progress":97.4,"time_added":1582554880.0,"tracker_host":"tracker.host","total_uploaded":0,"total_done":40370254,"total_wanted":1771415839,"total_seeds":6,"seeds_peers_ratio":3.0,"num_seeds":2,"name":"Test Torrent Two","is_auto_managed":true,"queue":0,"eta":735}},"filters":{"state":[["All",1],["Downloading",1],["Seeding",0],["Active",1],["Paused",0],["Queued",0],["Checking",0],["Error",0]],"tracker_host":[["All",1],["Error",0],["tracker.com",1]]}},"error":null}"""
-//            every { client.executeRequest(any()).statusCode } returns 200
-//            every { client.executeRequest(any()).responseMessage } returns "OK"
-//            every { client.executeRequest(any()).data } returns returnedJson.toByteArray(Charsets.UTF_8)
-//            FuelManager.instance.client = client
-//
-//            val expected = listOf(
-//                Torrent("hash1", 100.0, "Test Torrent One"),
-//                Torrent("hash2", 97.4, "Test Torrent Two")
-//            )
-//
-//            val actual = testSession.getAllTorrents()
-//
-//            assertThat(actual)
-//                .containsAll(expected)
-//        }
+        @Test
+        fun `response is parsed correctly - returns a List of Torrents`() {
+            val client = mockk<Client>()
+            val returnedJson = """{"id": 1,"result":{"hash1":{"comment":"","active_time":23030,"is_seed":true,"hash":"hash1","upload_payload_rate":0,"move_completed_path":"/path/to/downloads/","private":false,"total_payload_upload":60438823504,"paused":true,"seed_rank":339,"seeding_time":22984,"max_upload_slots":-1,"prioritize_first_last":false,"distributed_copies":0.0,"download_payload_rate":0,"message":"OK","num_peers":0,"max_download_speed":-1,"max_connections":-1,"compact":false,"ratio":37.82151412963867,"total_peers":124,"total_size":1597887280,"total_wanted":1597887280,"state":"Paused","file_priorities":[1,1,1,1],"max_upload_speed":-1,"remove_at_ratio":false,"tracker":"udp://tracker.com:2950","save_path":"/path/to/downloads/","progress":100.0,"time_added":1583840384.0,"tracker_host":"tracker.com","total_uploaded":60434516604,"files":[{"index":0,"path":"DownloadOne/FileOne.iso","offset":0,"size":1597776636},{"index":1,"path":"DownloadOne/README.txt","offset":1597776636,"size":30}],"total_done":1597887280,"num_pieces":762,"tracker_status":"tracker.com: Announce OK","total_seeds":368,"move_on_completed":false,"next_announce":0,"stop_at_ratio":false,"file_progress":[1.0,1.0,1.0,1.0],"move_completed":false,"piece_length":2097152,"all_time_download":1598002583,"move_on_completed_path":"/path/to/root","num_seeds":0,"peers":[],"name":"DownloadOne","trackers":[{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"http://tracker.com:80/announce","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false},{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"udp://tracker.com:2950","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false}],"total_payload_download":1598002583,"is_auto_managed":true,"seeds_peers_ratio":2.9677419662475586,"queue":-1,"num_files":4,"eta":0,"stop_ratio":2.0,"is_finished":true},"hash2":{"comment":"","active_time":34332,"is_seed":true,"hash":"hash2","upload_payload_rate":0,"move_completed_path":"/path/to/root","private":false,"total_payload_upload":12651894202,"paused":true,"seed_rank":300,"seeding_time":33923,"max_upload_slots":-1,"prioritize_first_last":false,"distributed_copies":0.0,"download_payload_rate":0,"message":"OK","num_peers":0,"max_download_speed":-1.0,"max_connections":-1,"compact":false,"ratio":5.1918721199035645,"total_peers":2,"total_size":2436865598,"total_wanted":2436865598,"state":"Paused","file_priorities":[1,1,1],"max_upload_speed":-1.0,"remove_at_ratio":false,"tracker":"udp://tracker.com:2730","save_path":"/path/to/downloads","progress":100.0,"time_added":1583095552.0,"tracker_host":"tracker.com","total_uploaded":12651894202,"files":[{"index":0,"path":"DownloadTwo/INFO.txt","offset":0,"size":30},{"index":1,"path":"DownloadTwo/File.iso","offset":30,"size":2436767043},{"index":2,"path":"DownloadTwo/README.md","offset":2436767073,"size":54}],"total_done":2436865598,"num_pieces":2324,"tracker_status":"tracker.com: Announce OK","total_seeds":10,"move_on_completed":false,"next_announce":0,"stop_at_ratio":true,"file_progress":[1.0,1.0,1.0],"move_completed":false,"piece_length":1048576,"all_time_download":2438021828,"move_on_completed_path":"/path/to/root","num_seeds":0,"peers":[],"name":"DownloadTwo","trackers":[{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"http://tracker.com:80/announce","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false},{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"udp://tracker.com:2730","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false}],"total_payload_download":2438021828,"is_auto_managed":true,"seeds_peers_ratio":5.0,"queue":-1,"num_files":3,"eta":0,"stop_ratio":5.0,"is_finished":true}}, error: null}"""
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray(Charsets.UTF_8)
+            FuelManager.instance.client = client
+
+            val expected = listOf(
+                Torrent(
+                    "",
+                    23030,
+                    true,
+                    "hash1",
+                    0,
+                    "/path/to/downloads/",
+                    false,
+                    60438823504,
+                    true,
+                    339,
+                    22984,
+                    -1,
+                    false,
+                    0.0,
+                    0,
+                    "OK",
+                    0,
+                    -1.0,
+                    -1,
+                    false,
+                    37.82151412963867,
+                    124,
+                    1597887280,
+                    1597887280,
+                    "Paused",
+                    listOf(
+                        1,
+                        1,
+                        1,
+                        1
+                    ),
+                    -1.0,
+                    false,
+                    "udp://tracker.com:2950",
+                    "/path/to/downloads/",
+                    100.0,
+                    1583840384.0,
+                    "tracker.com",
+                    60434516604,
+                    listOf(
+                        FileInTorrent(
+                            0,
+                            "DownloadOne/FileOne.iso",
+                            0,
+                            1597776636
+                        ),
+                        FileInTorrent(
+                            1,
+                            "DownloadOne/README.txt",
+                            1597776636,
+                            30
+                        )
+                    ),
+                    1597887280,
+                    762,
+                    "tracker.com: Announce OK",
+                    368,
+                    false,
+                    0,
+                    false,
+                    listOf(
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ),
+                    false,
+                    2097152,
+                    1598002583,
+                    "/path/to/root",
+                    0,
+                    listOf(),
+                    "DownloadOne",
+                    listOf(
+                        Tracker(
+                            true,
+                            0,
+                            false,
+                            null,
+                            "http://tracker.com:80/announce",
+                            0,
+                            null,
+                            false,
+                            4,
+                            false,
+                            0,
+                            false
+                        ),
+                        Tracker(
+                            true,
+                            0,
+                            false,
+                            null,
+                            "udp://tracker.com:2950",
+                            0,
+                            null,
+                            false,
+                            4,
+                            false,
+                            0,
+                            false
+                        )
+                    ),
+                    1598002583,
+                    true,
+                    2.9677419662475586,
+                    -1,
+                    4,
+                    0,
+                    2.0,
+                    true
+                ),
+                Torrent(
+                    "",
+                    34332,
+                    true,
+                    "hash2",
+                    0,
+                    "/path/to/root",
+                    false,
+                    12651894202,
+                    true,
+                    300,
+                    33923,
+                    -1,
+                    false,
+                    0.0,
+                    0,
+                    "OK",
+                    0,
+                    -1.0,
+                    -1,
+                    false,
+                    5.1918721199035645,
+                    2,
+                    2436865598,
+                    2436865598,
+                    "Paused",
+                    listOf(
+                        1,
+                        1,
+                        1
+                    ),
+                    -1.0,
+                    false,
+                    "udp://tracker.com:2730",
+                    "/path/to/downloads",
+                    100.0,
+                    1583095552.0,
+                    "tracker.com",
+                    12651894202,
+                    listOf(
+                        FileInTorrent(
+                            0,
+                            "DownloadTwo/INFO.txt",
+                            0,
+                            30
+                        ),
+                        FileInTorrent(
+                            1,
+                            "DownloadTwo/File.iso",
+                            30,
+                            2436767043
+                        ),
+                        FileInTorrent(
+                            2,
+                            "DownloadTwo/README.md",
+                            2436767073,
+                            54
+                        )
+                    ),
+                    2436865598,
+                    2324,
+                    "tracker.com: Announce OK",
+                    10,
+                    false,
+                    0,
+                    true,
+                    listOf(
+                        1.0,
+                        1.0,
+                        1.0
+                    ),
+                    false,
+                    1048576,
+                    2438021828,
+                    "/path/to/root",
+                    0,
+                    listOf(),
+                    "DownloadTwo",
+                    listOf(
+                        Tracker(
+                            true,
+                            0,
+                            false,
+                            null,
+                            "http://tracker.com:80/announce",
+                            0,
+                            null,
+                            false,
+                            4,
+                            false,
+                            0,
+                            false
+                        ),
+                        Tracker(
+                            true,
+                            0,
+                            false,
+                            null,
+                            "udp://tracker.com:2730",
+                            0,
+                            null,
+                            false,
+                            4,
+                            false,
+                            0,
+                            false
+                        )
+                    ),
+                    2438021828,
+                    true,
+                    5.0,
+                    -1,
+                    3,
+                    0,
+                    5.0,
+                    true
+                )
+            )
+
+            val actual = testSession.getAllTorrents()
+
+            assertThat(actual)
+                .containsAll(expected)
+        }
 
         @Test
         fun `request rejection is handled`() {
