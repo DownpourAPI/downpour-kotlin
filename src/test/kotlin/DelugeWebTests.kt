@@ -5,10 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.UnstableDefault
-import models.DownpourResult
-import models.FileInTorrent
-import models.Torrent
-import models.Tracker
+import models.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -320,7 +317,86 @@ class DelugeWebTests {
     }
 
     @Nested
-    inner class AddTorrent {
+    inner class AddMagnet {
+        @Test
+        fun `correct payload is sent`() {
+            val returnedJson = """{"id": 1, "result": null, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val expectedPayload = """{"id":1,"method":"core.add_torrent_magnet","params":["TEST_MAGNET",{}]}"""
+
+            testSession.addMagnet("TEST_MAGNET")
+
+            verify(exactly = 1) {
+                client.executeRequest(
+                    withArg {
+                        assertThat(it.body.asString("application/json").replace(" ", ""))
+                            .isEqualTo(expectedPayload)
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `returns Success when result is not null`() {
+            val returnedJson = """{"id": 1, "result": "hash", "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.addMagnet("TEST_MAGNET")
+
+            assertThat(actual).isEqualTo(AddMagnetResult.Success)
+        }
+
+        @Test
+        fun `returns AlreadyExists when result and error are null`() {
+            val returnedJson = """{"id": 1, "result": null, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.addMagnet("TEST_MAGNET")
+
+            assertThat(actual).isEqualTo(AddMagnetResult.AlreadyExists)
+        }
+
+        @Test
+        fun `returns Failure when request fails`() {
+            val returnedJson = """{"id": 1, "result": null, "error": {"message":"unit_test_failure", "code": 400}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.addMagnet("TEST_MAGNET")
+
+            assertThat(actual).isEqualTo(AddMagnetResult.Failure)
+        }
+
+        @Test
+        fun `throws FuelError when 500 error hit`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            assertThatThrownBy { testSession.addMagnet("TEST_MAGNET") }
+                .isInstanceOf(FuelError::class.java)
+        }
+    }
+
+    @Nested
+    inner class AddTorrentFile {
         @Test
         fun `payload is stringified correctly`() {
             val returnedJson = """{"id": 1, "result": null, "error": null}"""
