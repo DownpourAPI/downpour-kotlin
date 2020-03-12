@@ -101,7 +101,7 @@ class DelugeWebTests {
             every { client.executeRequest(any()).responseMessage } returns "OK"
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
             FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"web.add_torrents","params":[[{"path":"TESTMAGNET","options":{"filePriorities":[],"addPaused":false,"compactAllocation":false,"downloadLocation":"/path/to/downloads/","moveOnCompletion":false,"moveToLocation":null,"maxConnections":-1,"maxDownloadSpeed":-1,"maxUploadSlots":-1,"maxUploadSpeed":-1,"prioritizeFirstLastPieces":false}}]]}"""
+            val expectedPayload = """{"id":1,"method":"web.add_torrents","params":[[{"path":"TESTMAGNET","options":{"file_priorities":[1],"add_paused":false,"compact_allocation":false,"download_location":"/path/to/downloads/","move_on_completion":false,"move_to_location":null,"max_connections":-1,"max_download_speed":-1,"max_upload_slots":-1,"max_upload_speed":-1,"prioritize_first_last_pieces":false}}]]}"""
 
             testSession.addTorrent("TESTMAGNET")
 
