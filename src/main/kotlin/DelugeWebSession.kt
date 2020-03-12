@@ -88,6 +88,38 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
+    override fun addMagnet(magnetLink: String): AddMagnetResult {
+        val payload = AddMagnetPayload(magnetLink)
+
+        val response = Fuel.post(apiEndpoint)
+            .jsonBody(payload.toString())
+            .header("User-Agent", defaultUserAgent)
+            .header("Cookie", cookie)
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (data != null) {
+            val addMagnetResponse = json.parse(AddMagnetResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (addMagnetResponse.error == null) {
+                if (addMagnetResponse.result == null) {
+                    return AddMagnetResult.AlreadyExists
+                }
+                return AddMagnetResult.Success
+            }
+
+            println(addMagnetResponse.error.message)
+            return AddMagnetResult.Failure
+        }
+
+        if (error != null) {
+            throw error
+        }
+
+        return AddMagnetResult.Failure
+    }
+
     override fun uploadTorrentFile(torrentFile: File): String? {
         val response = Fuel.upload("${apiEndpoint}/upload")
             .add(FileDataPart(torrentFile, name = "file", filename = torrentFile.name))

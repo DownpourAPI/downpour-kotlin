@@ -21,4 +21,5 @@ interface SeedboxController {
     fun pauseTorrent(torrentHash: String): DownpourResult
 
     fun resumeTorrent(torrentHash: String): DownpourResult
+    fun addMagnet(magnetLink: String): AddMagnetResult
 }
