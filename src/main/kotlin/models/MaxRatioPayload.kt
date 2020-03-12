@@ -1,8 +1,5 @@
 package models
 
-import kotlinx.serialization.ContextualSerialization
-import kotlinx.serialization.Serializable
-
 data class MaxRatioPayload(
     val maxRatioParams: List<Any>,
     val id: Int = 1,

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MagnetOptions(
+data class TorrentOptions(
     @SerialName("file_priorities")
     val filePriorities: List<Int> = listOf(1),
 
