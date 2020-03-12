@@ -1,5 +1,4 @@
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import interfaces.SeedboxController
 import kotlinx.serialization.UnstableDefault
@@ -7,7 +6,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import models.*
 import java.io.File
-import java.io.FileNotFoundException
 
 @UnstableDefault
 class DelugeWebSession: SeedboxController {
@@ -62,32 +60,6 @@ class DelugeWebSession: SeedboxController {
         }
     }
 
-    override fun addTorrent(magnetLinkOrRemotePath: String): DownpourResult {
-        val magnetPayload = AddTorrentPayload(magnetLinkOrRemotePath, this.remoteDownloadLocation)  // TODO: Look into default Download Locations
-
-        val response = Fuel.post(apiEndpoint)
-            .jsonBody(json.stringify(AddTorrentPayload.serializer(), magnetPayload))
-            .header("User-Agent", defaultUserAgent)
-            .header("Cookie", cookie)
-            .response()
-            .third
-
-        // TODO: Convert to using Result.fold or Result.success & Result.failure
-        val (data, error) = response
-
-        return if (data != null) {
-            val addTorrentResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
-            when (addTorrentResponse.result) {
-                true -> DownpourResult.SUCCESS
-                false -> DownpourResult.FAILURE
-                null -> DownpourResult.FAILURE
-            }
-        } else {
-            println(error)
-            DownpourResult.FAILURE
-        }
-    }
-
     override fun addMagnet(magnetLink: String): AddMagnetResult {
         val payload = AddMagnetPayload(magnetLink)
 
@@ -120,23 +92,36 @@ class DelugeWebSession: SeedboxController {
         return AddMagnetResult.Failure
     }
 
-    override fun uploadTorrentFile(torrentFile: File): String? {
-        val response = Fuel.upload("${apiEndpoint}/upload")
-            .add(FileDataPart(torrentFile, name = "file", filename = torrentFile.name))
+    override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
+        val payload = AddTorrentFilePayload(torrentFile)
+
+        val response = Fuel.post(apiEndpoint)
+            .jsonBody(payload.toString())
+            .header("User-Agent", defaultUserAgent)
+            .header("Cookie", cookie)
             .response()
             .third
 
         val (data, error) = response
 
         if (data != null) {
-            val torrentUploadResponse = json.parse(TorrentUploadResponse.serializer(), data.toString(Charsets.UTF_8))
-            if (!torrentUploadResponse.success || torrentUploadResponse.files.isNullOrEmpty()) {
-                return null
+            val addTorrentFileResponse = json.parse(AddTorrentFileResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (addTorrentFileResponse.error == null) {
+                if (addTorrentFileResponse.result == null) {
+                    return AddTorrentFileResult.AlreadyExists
+                }
+                return AddTorrentFileResult.Success
             }
-            return torrentUploadResponse.files[0]
-        } else {
-            return null
+
+            println(addTorrentFileResponse.error.message)
+            return AddTorrentFileResult.Failure
         }
+
+        if (error != null) {
+            throw error
+        }
+
+        return AddTorrentFileResult.Failure
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
