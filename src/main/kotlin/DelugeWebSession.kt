@@ -9,7 +9,6 @@ import java.io.File
 
 @UnstableDefault
 class DelugeWebSession: SeedboxController {
-    private val defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0"
     private var requestId = 1
     private var cookie: String = ""
     private val apiEndpoint: String
@@ -34,7 +33,6 @@ class DelugeWebSession: SeedboxController {
     override fun login(password: String): String {
         val payload = LoginPayload(listOf(password), requestId++)
         val result = Fuel.post(apiEndpoint)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(json.stringify(LoginPayload.serializer(), payload))
             .response()
 
@@ -65,7 +63,6 @@ class DelugeWebSession: SeedboxController {
 
         val response = Fuel.post(apiEndpoint)
             .jsonBody(payload.toString())
-            .header("User-Agent", defaultUserAgent)
             .header("Cookie", cookie)
             .response()
             .third
@@ -97,7 +94,6 @@ class DelugeWebSession: SeedboxController {
 
         val response = Fuel.post(apiEndpoint)
             .jsonBody(payload.toString())
-            .header("User-Agent", defaultUserAgent)
             .header("Cookie", cookie)
             .response()
             .third
@@ -128,7 +124,6 @@ class DelugeWebSession: SeedboxController {
         val singleTorrentPayload = GetTorrentDetailsPayload.defaultPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(singleTorrentPayload.toString())
             .response()
 
@@ -147,7 +142,6 @@ class DelugeWebSession: SeedboxController {
         val maxRatioPayload: MaxRatioPayload = MaxRatioPayload.defaultPayload(torrentHash, maxRatio)
 
         val response = Fuel.post(apiEndpoint)
-            .header("User-Agent", defaultUserAgent)
             .header("Cookie", cookie)
             .jsonBody(maxRatioPayload.toString())
             .response()
@@ -172,7 +166,6 @@ class DelugeWebSession: SeedboxController {
         val allTorrentsPayload = GetAllTorrentsPayload()
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(allTorrentsPayload.toString())
             .response()
 
@@ -200,7 +193,6 @@ class DelugeWebSession: SeedboxController {
         val payload = RemoveTorrentPayload.defaultPayload(torrentHash, withData)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(json.stringify(RemoveTorrentPayload.serializer(), payload))
             .response()
             .third
@@ -223,7 +215,6 @@ class DelugeWebSession: SeedboxController {
         val payload = PauseTorrentPayload.defaultPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(json.stringify(PauseTorrentPayload.serializer(), payload))
             .response()
             .third
@@ -246,7 +237,6 @@ class DelugeWebSession: SeedboxController {
         val payload = ResumeTorrentPayload.defaultPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .header("User-Agent", defaultUserAgent)
             .jsonBody(json.stringify(ResumeTorrentPayload.serializer(), payload))
             .response()
             .third
