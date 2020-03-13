@@ -1,6 +1,9 @@
 package interfaces
 
-import models.*
+import implementations.delugeweb.jsonobjects.AddMagnetResult
+import implementations.delugeweb.jsonobjects.AddTorrentFileResult
+import implementations.delugeweb.jsonobjects.DownpourResult
+import implementations.delugeweb.jsonobjects.Torrent
 import java.io.File
 
 interface SeedboxController {
