@@ -1,9 +1,9 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AddTorrentFileResponse(
+data class AddMagnetResponse(
     val id: Int,
     val result: String?,
     val error: ResponseError?

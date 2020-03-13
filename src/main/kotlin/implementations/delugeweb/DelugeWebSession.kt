@@ -1,14 +1,16 @@
+package implementations.delugeweb
+
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
-import interfaces.SeedboxController
+import implementations.delugeweb.jsonobjects.*
+import interfaces.RemoteTorrentController
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import models.*
 import java.io.File
 
 @UnstableDefault
-class DelugeWebSession: SeedboxController {
+class DelugeWebSession: RemoteTorrentController {
     // private var requestId = 1
     private var cookie: String
     private val apiEndpoint: String

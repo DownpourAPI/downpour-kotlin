@@ -1,4 +1,4 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 import java.io.File
 import java.util.*

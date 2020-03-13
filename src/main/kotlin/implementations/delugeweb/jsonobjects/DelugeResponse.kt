@@ -1,10 +1,10 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AddMagnetResponse(
+data class DelugeResponse(
     val id: Int,
-    val result: String?,
+    val result: Boolean?,
     val error: ResponseError?
 )

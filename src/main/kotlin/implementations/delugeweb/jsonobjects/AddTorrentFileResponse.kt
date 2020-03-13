@@ -1,10 +1,10 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DelugeResponse(
+data class AddTorrentFileResponse(
     val id: Int,
-    val result: Boolean?,
+    val result: String?,
     val error: ResponseError?
 )

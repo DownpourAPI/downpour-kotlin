@@ -1,11 +1,12 @@
 import com.github.kittinunf.fuel.core.Client
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
+import implementations.delugeweb.DelugeWebSession
+import implementations.delugeweb.jsonobjects.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.UnstableDefault
-import models.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -813,7 +814,20 @@ class DelugeWebTests {
                 1583095552.0,
                 "tracker.com",
                 35008787612,
-                listOf(FileInTorrent(0,"directory/file0",0,4028), FileInTorrent(1,"directory/file1",4028,794650369)),
+                listOf(
+                    FileInTorrent(
+                        0,
+                        "directory/file0",
+                        0,
+                        4028
+                    ),
+                    FileInTorrent(
+                        1,
+                        "directory/file1",
+                        4028,
+                        794650369
+                    )
+                ),
                 1000000,
                 1024,
                 "Announce OK",

@@ -1,4 +1,4 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 enum class AddMagnetResult {
     Success,
