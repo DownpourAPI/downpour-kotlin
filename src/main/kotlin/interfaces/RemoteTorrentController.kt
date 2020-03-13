@@ -6,7 +6,7 @@ import implementations.delugeweb.jsonobjects.DownpourResult
 import implementations.delugeweb.jsonobjects.Torrent
 import java.io.File
 
-interface SeedboxController {
+interface RemoteTorrentController {
     fun login(password: String): String
 
     fun getTorrentDetails(torrentHash: String): Torrent?

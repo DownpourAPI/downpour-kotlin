@@ -1,4 +1,4 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable

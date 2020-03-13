@@ -1,4 +1,4 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 data class AddMagnetPayload(val magnetLink: String) {
     override fun toString(): String {

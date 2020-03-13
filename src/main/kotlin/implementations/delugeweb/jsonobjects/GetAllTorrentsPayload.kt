@@ -1,4 +1,4 @@
-package models
+package implementations.delugeweb.jsonobjects
 
 
 data class GetAllTorrentsPayload(
