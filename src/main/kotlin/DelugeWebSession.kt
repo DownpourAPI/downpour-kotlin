@@ -9,8 +9,8 @@ import java.io.File
 
 @UnstableDefault
 class DelugeWebSession: SeedboxController {
-    private var requestId = 1
-    private var cookie: String = ""
+    // private var requestId = 1
+    private var cookie: String
     private val apiEndpoint: String
     private val remoteDownloadLocation: String
 
@@ -27,13 +27,13 @@ class DelugeWebSession: SeedboxController {
     constructor(apiEndpoint: String, password: String, remoteDownloadLocation: String) {
         this.apiEndpoint = apiEndpoint
         this.remoteDownloadLocation = remoteDownloadLocation
-        login(password)
+        this.cookie = login(password)
     }
 
     override fun login(password: String): String {
-        val payload = LoginPayload(listOf(password), requestId++)
+        val payload = LoginPayload(password)
         val result = Fuel.post(apiEndpoint)
-            .jsonBody(json.stringify(LoginPayload.serializer(), payload))
+            .jsonBody(payload.toString())
             .response()
 
         val responseDetails = result.second
@@ -49,7 +49,6 @@ class DelugeWebSession: SeedboxController {
                 return responseDetails.headers["Set-Cookie"].first().split(";")[0]
             }
             connectionError != null -> {
-                println(connectionError)
                 throw connectionError
             }
             else -> {
@@ -78,7 +77,6 @@ class DelugeWebSession: SeedboxController {
                 return AddMagnetResult.Success
             }
 
-            println(addMagnetResponse.error.message)
             return AddMagnetResult.Failure
         }
 
@@ -109,7 +107,6 @@ class DelugeWebSession: SeedboxController {
                 return AddTorrentFileResult.Success
             }
 
-            println(addTorrentFileResponse.error.message)
             return AddTorrentFileResult.Failure
         }
 
@@ -157,7 +154,6 @@ class DelugeWebSession: SeedboxController {
                 null -> DownpourResult.FAILURE
             }
         } else {
-            println(error)
             DownpourResult.FAILURE
         }
     }
@@ -228,7 +224,6 @@ class DelugeWebSession: SeedboxController {
                 else -> DownpourResult.FAILURE
             }
         } else {
-            println(error)
             DownpourResult.FAILURE
         }
     }
@@ -251,7 +246,6 @@ class DelugeWebSession: SeedboxController {
                 else -> DownpourResult.FAILURE
             }
         } else {
-            println(error)
             DownpourResult.FAILURE
         }
     }

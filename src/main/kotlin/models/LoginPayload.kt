@@ -1,10 +1,7 @@
 package models
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class LoginPayload(
-    val params: List<String>,
-    val id: Int,
-    val method: String = "auth.login"
-)
+data class LoginPayload(val password: String) {
+    override fun toString(): String {
+        return """{"id":1,"method":"auth.login","params":["$password"]}"""
+    }
+}
