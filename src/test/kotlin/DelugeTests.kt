@@ -22,28 +22,6 @@ class DelugeTests {
     @Nested
     inner class GetAll {
         @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.get_torrents_status","params":[{},[]]}"""
-
-            testSession.getAllTorrents()
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
-        @Test
         fun `response is parsed correctly - returns a List of Torrents`() {
             val client = mockk<Client>()
             val returnedJson = """{"id": 1,"result":{"hash1":{"comment":"","active_time":23030,"is_seed":true,"hash":"hash1","upload_payload_rate":0,"move_completed_path":"/path/to/downloads/","private":false,"total_payload_upload":60438823504,"paused":true,"seed_rank":339,"seeding_time":22984,"max_upload_slots":-1,"prioritize_first_last":false,"distributed_copies":0.0,"download_payload_rate":0,"message":"OK","num_peers":0,"max_download_speed":-1,"max_connections":-1,"compact":false,"ratio":37.82151412963867,"total_peers":124,"total_size":1597887280,"total_wanted":1597887280,"state":"Paused","file_priorities":[1,1,1,1],"max_upload_speed":-1,"remove_at_ratio":false,"tracker":"udp://tracker.com:2950","save_path":"/path/to/downloads/","progress":100.0,"time_added":1583840384.0,"tracker_host":"tracker.com","total_uploaded":60434516604,"files":[{"index":0,"path":"DownloadOne/FileOne.iso","offset":0,"size":1597776636},{"index":1,"path":"DownloadOne/README.txt","offset":1597776636,"size":30}],"total_done":1597887280,"num_pieces":762,"tracker_status":"tracker.com: Announce OK","total_seeds":368,"move_on_completed":false,"next_announce":0,"stop_at_ratio":false,"file_progress":[1.0,1.0,1.0,1.0],"move_completed":false,"piece_length":2097152,"all_time_download":1598002583,"move_on_completed_path":"/path/to/root","num_seeds":0,"peers":[],"name":"DownloadOne","trackers":[{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"http://tracker.com:80/announce","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false},{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"udp://tracker.com:2950","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false}],"total_payload_download":1598002583,"is_auto_managed":true,"seeds_peers_ratio":2.9677419662475586,"queue":-1,"num_files":4,"eta":0,"stop_ratio":2.0,"is_finished":true},"hash2":{"comment":"","active_time":34332,"is_seed":true,"hash":"hash2","upload_payload_rate":0,"move_completed_path":"/path/to/root","private":false,"total_payload_upload":12651894202,"paused":true,"seed_rank":300,"seeding_time":33923,"max_upload_slots":-1,"prioritize_first_last":false,"distributed_copies":0.0,"download_payload_rate":0,"message":"OK","num_peers":0,"max_download_speed":-1.0,"max_connections":-1,"compact":false,"ratio":5.1918721199035645,"total_peers":2,"total_size":2436865598,"total_wanted":2436865598,"state":"Paused","file_priorities":[1,1,1],"max_upload_speed":-1.0,"remove_at_ratio":false,"tracker":"udp://tracker.com:2730","save_path":"/path/to/downloads","progress":100.0,"time_added":1583095552.0,"tracker_host":"tracker.com","total_uploaded":12651894202,"files":[{"index":0,"path":"DownloadTwo/INFO.txt","offset":0,"size":30},{"index":1,"path":"DownloadTwo/File.iso","offset":30,"size":2436767043},{"index":2,"path":"DownloadTwo/README.md","offset":2436767073,"size":54}],"total_done":2436865598,"num_pieces":2324,"tracker_status":"tracker.com: Announce OK","total_seeds":10,"move_on_completed":false,"next_announce":0,"stop_at_ratio":true,"file_progress":[1.0,1.0,1.0],"move_completed":false,"piece_length":1048576,"all_time_download":2438021828,"move_on_completed_path":"/path/to/root","num_seeds":0,"peers":[],"name":"DownloadTwo","trackers":[{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"http://tracker.com:80/announce","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false},{"send_stats":true,"fails":0,"verified":false,"min_announce":null,"url":"udp://tracker.com:2730","fail_limit":0,"next_announce":null,"complete_sent":false,"source":4,"start_sent":false,"tier":0,"updating":false}],"total_payload_download":2438021828,"is_auto_managed":true,"seeds_peers_ratio":5.0,"queue":-1,"num_files":3,"eta":0,"stop_ratio":5.0,"is_finished":true}}, error: null}"""
@@ -320,29 +298,6 @@ class DelugeTests {
     @Nested
     inner class AddMagnet {
         @Test
-        fun `correct payload is sent`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-
-            val expectedPayload = """{"id":1,"method":"core.add_torrent_magnet","params":["TEST_MAGNET",{}]}"""
-
-            testSession.addMagnet("TEST_MAGNET")
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
-        @Test
         fun `returns Success with Hash when result is not null`() {
             val returnedJson = """{"id": 1, "result": "TEST_TORRENT_HASH", "error": null}"""
             val client = mockk<Client>()
@@ -399,32 +354,6 @@ class DelugeTests {
 
     @Nested
     inner class AddTorrentFile {
-        @Test
-        fun `correct payload is sent`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-
-            val expectedPayload = """{"id":1,"method":"core.add_torrent_file","params":["file","S25vd25CYXNlNjQ=",{}]}"""
-
-            val testFile = File.createTempFile("tmp", ".txt")
-            testFile.writeText("KnownBase64")
-
-            testSession.addTorrentFile(testFile)
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
         @Test
         fun `returns Success with Hash when result is not null`() {
             val returnedJson = """{"id": 1, "result": "ADD_TORRENTFILE_RESULT", "error": null}"""
@@ -491,28 +420,6 @@ class DelugeTests {
     @Nested
     inner class RemoveTorrent {
         @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.remove_torrent","params":["TEST_HASH",true]}"""
-
-            testSession.removeTorrent("TEST_HASH")
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
-        @Test
         fun `success returns SUCCESS enum`() {
             val returnedJson = """{"id": 1, "result": true, "error": null}"""
             val client = mockk<Client>()
@@ -554,28 +461,6 @@ class DelugeTests {
 
     @Nested
     inner class SetMaxRatio {
-        @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.set_torrent_options","params":[["TEST_HASH"],{"stop_at_ratio":true,"stop_ratio":5}]}"""
-
-            testSession.setMaxRatio("TEST_HASH", 5)
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
         @Test
         fun `success returns SUCCESS enum`() {
             val returnedJson = """{"id": 1, "result": true, "error": null}"""
@@ -619,28 +504,6 @@ class DelugeTests {
     @Nested
     inner class Pause {
         @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.pause_torrent","params":["TEST_HASH"]}"""
-
-            testSession.pauseTorrent("TEST_HASH")
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
-        @Test
         fun `success result returns SUCCESS enum`() {
             val returnedJson = """{"id": 1, "result": true, "error": null}"""
             val client = mockk<Client>()
@@ -683,28 +546,6 @@ class DelugeTests {
     @Nested
     inner class Resume {
         @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.resume_torrent","params":["TEST_HASH"]}"""
-
-            testSession.resumeTorrent("TEST_HASH")
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
-        @Test
         fun `success result returns SUCCESS enum`() {
             val returnedJson = """{"id": 1, "result": true, "error": null}"""
             val client = mockk<Client>()
@@ -745,29 +586,7 @@ class DelugeTests {
     }
 
     @Nested
-    inner class GetSingleTorrent {
-        @Test
-        fun `payload is stringified correctly`() {
-            val returnedJson = """{"id": 1, "result": null, "error": null}"""
-            val client = mockk<Client>()
-            every { client.executeRequest(any()).statusCode } returns 200
-            every { client.executeRequest(any()).responseMessage } returns "OK"
-            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
-            FuelManager.instance.client = client
-            val expectedPayload = """{"id":1,"method":"core.get_torrent_status","params":["TEST_HASH",[]]}"""
-
-            testSession.getTorrentDetails("TEST_HASH")
-
-            verify(exactly = 1) {
-                client.executeRequest(
-                    withArg {
-                        assertThat(it.body.asString("application/json").replace(" ", ""))
-                            .isEqualTo(expectedPayload)
-                    }
-                )
-            }
-        }
-
+    inner class GetSingleTorrent    {
         @Test
         fun `success result returns correct Torrent object`() {
             val client = mockk<Client>()
