@@ -329,11 +329,11 @@ class DelugeWebSession: RemoteTorrentController {
         }
 
         return if (data != null) {
-            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
-            when (addMagnetResponse.result) {
-                true -> DownpourResult.SUCCESS  // This should never come up, as the server returns a null on success
-                null -> DownpourResult.SUCCESS
-                false -> DownpourResult.FAILURE
+            val forceRecheckResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (forceRecheckResponse.result == null && forceRecheckResponse.error == null) {
+                DownpourResult.SUCCESS
+            } else {
+                DownpourResult.FAILURE
             }
         } else {
             DownpourResult.FAILURE
