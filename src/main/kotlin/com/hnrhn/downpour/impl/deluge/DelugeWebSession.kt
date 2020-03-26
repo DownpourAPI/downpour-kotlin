@@ -28,7 +28,7 @@ class DelugeWebSession: RemoteTorrentController {
         this.cookie = login(password)
     }
 
-    override fun login(password: String): String {
+    private fun login(password: String): String {
         val payload = LoginPayload(password)
         val result = Fuel.post(apiEndpoint)
             .jsonBody(payload.toString())
@@ -263,5 +263,21 @@ class DelugeWebSession: RemoteTorrentController {
         } else {
             DownpourResult.FAILURE
         }
+    }
+
+    override fun setMaxDownloadSpeed(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxUploadSpeed(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun forceRecheck(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun getFreeSpace(): Long {
+        TODO("Not yet implemented")
     }
 }

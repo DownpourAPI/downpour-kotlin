@@ -4,8 +4,6 @@ import com.hnrhn.downpour.impl.deluge.jsonobjects.*
 import java.io.File
 
 interface RemoteTorrentController {
-    fun login(password: String): String
-
     fun getTorrentDetails(torrentHash: String): Torrent?
 
     fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult
@@ -21,4 +19,12 @@ interface RemoteTorrentController {
     fun addMagnet(magnetLink: String): AddMagnetResult
 
     fun addTorrentFile(torrentFile: File): AddTorrentFileResult
+
+    fun setMaxDownloadSpeed(torrentHash: String): DownpourResult
+
+    fun setMaxUploadSpeed(torrentHash: String): DownpourResult
+
+    fun forceRecheck(torrentHash: String): DownpourResult
+
+    fun getFreeSpace(): Long
 }

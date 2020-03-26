@@ -5,10 +5,6 @@ import com.hnrhn.downpour.interfaces.RemoteTorrentController
 import java.io.File
 
 class RutorrentSession : RemoteTorrentController {
-    override fun login(password: String): String {
-        TODO("Not yet implemented")
-    }
-
     override fun getTorrentDetails(torrentHash: String): Torrent? {
         TODO("Not yet implemented")
     }
@@ -38,6 +34,22 @@ class RutorrentSession : RemoteTorrentController {
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxDownloadSpeed(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxUploadSpeed(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun forceRecheck(torrentHash: String): DownpourResult {
+        TODO("Not yet implemented")
+    }
+
+    override fun getFreeSpace(): Long {
         TODO("Not yet implemented")
     }
 }
