@@ -541,15 +541,14 @@ class DelugeTests {
         }
 
         @Test
-        fun `500 error returns FAILURE enum`() {
+        fun `500 error throws Fuel Error`() {
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 500
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.removeTorrent("TEST_HASH")
-
-            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+            assertThatThrownBy { testSession.removeTorrent("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
         }
     }
 
@@ -612,9 +611,8 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.setMaxRatio("TEST_HASH", 5)
-
-            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+            assertThatThrownBy { testSession.setMaxRatio("TEST_HASH", 5) }
+                .isInstanceOf(FuelError::class.java)
         }
     }
 
@@ -677,9 +675,8 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.pauseTorrent("TEST_HASH")
-
-            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+            assertThatThrownBy { testSession.pauseTorrent("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
         }
     }
 
@@ -742,9 +739,8 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            val actual = testSession.resumeTorrent("TEST_HASH")
-
-            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+            assertThatThrownBy { testSession.getTorrentDetails("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
         }
     }
 
@@ -886,7 +882,7 @@ class DelugeTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray(Charsets.UTF_8)
             FuelManager.instance.client = client
 
-            val actual = testSession.getTorrentDetails("test_hash")
+            val actual = testSession.getTorrentDetails("TEST_HASH")
 
             assertThat(actual)
                 .isNull()
@@ -899,7 +895,7 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            assertThatThrownBy { testSession.getTorrentDetails("test_hash") }
+            assertThatThrownBy { testSession.getTorrentDetails("TEST_HASH") }
                 .isInstanceOf(FuelError::class.java)
         }
     }

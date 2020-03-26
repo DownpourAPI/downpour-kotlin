@@ -144,7 +144,6 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        // TODO: Unit Test for this
         if (error != null) {
             throw error
         }
@@ -198,7 +197,6 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        // TODO: Unit Test for this
         if (error != null) {
             throw error
         }
@@ -225,7 +223,6 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        // TODO: Unit Test for this
         if (error != null) {
             throw error
         }
@@ -252,7 +249,6 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        // TODO: Unit Test for this
         if (error != null) {
             throw error
         }
