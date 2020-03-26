@@ -149,8 +149,8 @@ class DelugeWebSession: RemoteTorrentController {
         }
 
         return if (data != null) {
-            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
-            when (addMagnetResponse.result) {
+            val setMaxRatioResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (setMaxRatioResponse.result) {
                 true -> DownpourResult.SUCCESS
                 false -> DownpourResult.FAILURE
                 null -> DownpourResult.FAILURE
@@ -265,12 +265,54 @@ class DelugeWebSession: RemoteTorrentController {
         }
     }
 
-    override fun setMaxDownloadSpeed(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+    override fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", cookie)
+            .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"max_download_speed":$maxSpeedKibiBytes}]}""")
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (error != null) {
+            throw error
+        }
+
+        return if (data != null) {
+            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (addMagnetResponse.result) {
+                true -> DownpourResult.SUCCESS
+                false -> DownpourResult.FAILURE
+                null -> DownpourResult.FAILURE
+            }
+        } else {
+            DownpourResult.FAILURE
+        }
     }
 
-    override fun setMaxUploadSpeed(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+    override fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", cookie)
+            .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"max_upload_speed":$maxSpeedKibiBytes}]}""")
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (error != null) {
+            throw error
+        }
+
+        return if (data != null) {
+            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (addMagnetResponse.result) {
+                true -> DownpourResult.SUCCESS
+                false -> DownpourResult.FAILURE
+                null -> DownpourResult.FAILURE
+            }
+        } else {
+            DownpourResult.FAILURE
+        }
     }
 
     override fun forceRecheck(torrentHash: String): DownpourResult {
