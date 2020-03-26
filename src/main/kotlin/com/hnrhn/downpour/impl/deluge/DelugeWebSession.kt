@@ -14,7 +14,6 @@ class DelugeWebSession: RemoteTorrentController {
     // private var requestId = 1
     private var cookie: String
     private val apiEndpoint: String
-    private val remoteDownloadLocation: String
 
     private val json = Json(JsonConfiguration(strictMode = false))
 
@@ -23,12 +22,10 @@ class DelugeWebSession: RemoteTorrentController {
     internal constructor(unitTestCookie: String) {
         this.cookie = unitTestCookie
         this.apiEndpoint = "http://unit-test"
-        this.remoteDownloadLocation = "/path/to/downloads/"
     }
 
-    constructor(apiEndpoint: String, password: String, remoteDownloadLocation: String) {
+    constructor(apiEndpoint: String, password: String) {
         this.apiEndpoint = apiEndpoint
-        this.remoteDownloadLocation = remoteDownloadLocation
         this.cookie = login(password)
     }
 
