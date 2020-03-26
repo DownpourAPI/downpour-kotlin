@@ -116,7 +116,7 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
-        val singleTorrentPayload = GetTorrentDetailsPayload.defaultPayload(torrentHash)
+        val singleTorrentPayload = GetTorrentDetailsPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .jsonBody(singleTorrentPayload.toString())
@@ -134,7 +134,7 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
-        val maxRatioPayload: MaxRatioPayload = MaxRatioPayload.defaultPayload(torrentHash, maxRatio)
+        val maxRatioPayload = MaxRatioPayload(torrentHash, maxRatio)
 
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
@@ -189,10 +189,10 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun removeTorrent(torrentHash: String, withData: Boolean): DownpourResult {
-        val payload = RemoveTorrentPayload.defaultPayload(torrentHash, withData)
+        val payload = RemoveTorrentPayload(torrentHash, withData)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .jsonBody(json.stringify(RemoveTorrentPayload.serializer(), payload))
+            .jsonBody(payload.toString())
             .response()
             .third
 
@@ -216,10 +216,10 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun pauseTorrent(torrentHash: String): DownpourResult {
-        val payload = PauseTorrentPayload.defaultPayload(torrentHash)
+        val payload = PauseTorrentPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .jsonBody(json.stringify(PauseTorrentPayload.serializer(), payload))
+            .jsonBody(payload.toString())
             .response()
             .third
 
@@ -243,10 +243,10 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun resumeTorrent(torrentHash: String): DownpourResult {
-        val payload = ResumeTorrentPayload.defaultPayload(torrentHash)
+        val payload = ResumeTorrentPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .jsonBody(json.stringify(ResumeTorrentPayload.serializer(), payload))
+            .jsonBody(payload.toString())
             .response()
             .third
 
