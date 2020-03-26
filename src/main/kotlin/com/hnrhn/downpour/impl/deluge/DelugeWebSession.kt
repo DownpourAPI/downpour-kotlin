@@ -11,7 +11,6 @@ import java.io.File
 
 @UnstableDefault
 class DelugeWebSession: RemoteTorrentController {
-    // private var requestId = 1
     private var cookie: String
     private val apiEndpoint: String
 
