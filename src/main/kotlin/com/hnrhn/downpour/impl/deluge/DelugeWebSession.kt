@@ -96,23 +96,23 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        if (data != null) {
-            val addTorrentFileResponse = json.parse(AddTorrentFileResponse.serializer(), data.toString(Charsets.UTF_8))
-            if (addTorrentFileResponse.error == null) {
-                if (addTorrentFileResponse.result == null) {
-                    return AddTorrentFileResult.AlreadyExists
-                }
-                return AddTorrentFileResult.Success
-            }
-
-            return AddTorrentFileResult.Failure
-        }
-
         if (error != null) {
             throw error
         }
 
-        return AddTorrentFileResult.Failure
+        if (data != null) {
+            val addTorrentFileResponse = json.parse(AddTorrentFileResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (addTorrentFileResponse.error == null) {
+                if (addTorrentFileResponse.result == null) {
+                    return AddTorrentFileResult.AlreadyExists()
+                }
+                return AddTorrentFileResult.Success(addTorrentFileResponse.result)
+            }
+
+            return AddTorrentFileResult.Failure()
+        }
+
+        return AddTorrentFileResult.Failure()
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
