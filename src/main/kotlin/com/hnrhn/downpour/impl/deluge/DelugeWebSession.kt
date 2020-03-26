@@ -278,6 +278,28 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun getFreeSpace(): Long {
-        TODO("Not yet implemented")
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", this.cookie)
+            .jsonBody("""{"id":1,"method":"core.get_free_space","params":[]}""")
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (error != null) {
+            throw error
+        }
+
+        return if (data != null) {
+            val jsonResponse = data.toString(Charsets.UTF_8)
+            val getFreeSpaceResult = json.parse(GetFreeSpaceResponse.serializer(), jsonResponse)
+            if (getFreeSpaceResult.error == null && getFreeSpaceResult.result != null) {
+                getFreeSpaceResult.result
+            } else {
+                (-1).toLong()
+            }
+        } else {
+            (-1).toLong()
+        }
     }
 }

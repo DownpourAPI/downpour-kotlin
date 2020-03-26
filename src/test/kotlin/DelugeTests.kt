@@ -605,7 +605,7 @@ class DelugeTests {
         }
 
         @Test
-        fun `500 error returns FAILURE enum`() {
+        fun `500 error throws FuelError`() {
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 500
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
@@ -896,6 +896,48 @@ class DelugeTests {
             FuelManager.instance.client = client
 
             assertThatThrownBy { testSession.getTorrentDetails("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
+        }
+    }
+
+    @Nested
+    inner class GetFreeSpace {
+        @Test
+        fun `Success returns correct value`() {
+            val returnedJson = """{"id": 1, "result": 41657932866351432, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.getFreeSpace()
+
+            assertThat(actual).isEqualTo(41657932866351432)
+        }
+
+        @Test
+        fun `Failure returns -1`() {
+            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.getFreeSpace()
+
+            assertThat(actual).isEqualTo(-1)
+        }
+
+        @Test
+        fun `Server Error throws FuelError`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            assertThatThrownBy { testSession.getFreeSpace() }
                 .isInstanceOf(FuelError::class.java)
         }
     }
