@@ -426,8 +426,8 @@ class DelugeTests {
         }
 
         @Test
-        fun `returns Success when result is not null`() {
-            val returnedJson = """{"id": 1, "result": "hash", "error": null}"""
+        fun `returns Success with Hash when result is not null`() {
+            val returnedJson = """{"id": 1, "result": "ADD_TORRENTFILE_RESULT", "error": null}"""
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 200
             every { client.executeRequest(any()).responseMessage } returns "OK"
@@ -438,7 +438,8 @@ class DelugeTests {
 
             val actual = testSession.addTorrentFile(testFile)
 
-            assertThat(actual).isEqualTo(AddTorrentFileResult.Success)
+            assertThat(actual.status).isEqualTo(AddTorrentFileStatus.Success)
+            assertThat(actual.resultHash).isEqualTo("ADD_TORRENTFILE_RESULT")
         }
 
         @Test
@@ -454,7 +455,7 @@ class DelugeTests {
 
             val actual = testSession.addTorrentFile(testFile)
 
-            assertThat(actual).isEqualTo(AddTorrentFileResult.AlreadyExists)
+            assertThat(actual.status).isEqualTo(AddTorrentFileStatus.AlreadyExists)
         }
 
         @Test
@@ -470,7 +471,7 @@ class DelugeTests {
 
             val actual = testSession.addTorrentFile(testFile)
 
-            assertThat(actual).isEqualTo(AddTorrentFileResult.Failure)
+            assertThat(actual.status).isEqualTo(AddTorrentFileStatus.Failure)
         }
 
         @Test

@@ -37,7 +37,7 @@ class RutorrentSession : RemoteTorrentController {
         TODO("Not yet implemented")
     }
 
-    override fun addTorrentFile(torrentFile: File): AddTorrentFileStatus {
+    override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
         TODO("Not yet implemented")
     }
 }
