@@ -66,23 +66,23 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
-        if (data != null) {
-            val addMagnetResponse = json.parse(AddMagnetResponse.serializer(), data.toString(Charsets.UTF_8))
-            if (addMagnetResponse.error == null) {
-                if (addMagnetResponse.result == null) {
-                    return AddMagnetResult.AlreadyExists
-                }
-                return AddMagnetResult.Success
-            }
-
-            return AddMagnetResult.Failure
-        }
-
         if (error != null) {
             throw error
         }
 
-        return AddMagnetResult.Failure
+        if (data != null) {
+            val addMagnetResponse = json.parse(AddMagnetResponse.serializer(), data.toString(Charsets.UTF_8))
+            if (addMagnetResponse.error == null) {
+                if (addMagnetResponse.result == null) {
+                    return AddMagnetResult.AlreadyExists()
+                }
+                return AddMagnetResult.Success(addMagnetResponse.result)
+            }
+
+            return AddMagnetResult.Failure()
+        }
+
+        return AddMagnetResult.Failure()
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
