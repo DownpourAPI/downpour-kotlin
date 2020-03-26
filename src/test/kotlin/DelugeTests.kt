@@ -343,8 +343,8 @@ class DelugeTests {
         }
 
         @Test
-        fun `returns Success when result is not null`() {
-            val returnedJson = """{"id": 1, "result": "hash", "error": null}"""
+        fun `returns Success with Hash when result is not null`() {
+            val returnedJson = """{"id": 1, "result": "TEST_TORRENT_HASH", "error": null}"""
             val client = mockk<Client>()
             every { client.executeRequest(any()).statusCode } returns 200
             every { client.executeRequest(any()).responseMessage } returns "OK"
@@ -353,7 +353,8 @@ class DelugeTests {
 
             val actual = testSession.addMagnet("TEST_MAGNET")
 
-            assertThat(actual).isEqualTo(AddMagnetResult.Success)
+            assertThat(actual.status).isEqualTo(AddMagnetStatus.Success)
+            assertThat(actual.resultHash).isEqualTo("TEST_TORRENT_HASH")
         }
 
         @Test
@@ -367,7 +368,7 @@ class DelugeTests {
 
             val actual = testSession.addMagnet("TEST_MAGNET")
 
-            assertThat(actual).isEqualTo(AddMagnetResult.AlreadyExists)
+            assertThat(actual.status).isEqualTo(AddMagnetStatus.AlreadyExists)
         }
 
         @Test
@@ -381,7 +382,7 @@ class DelugeTests {
 
             val actual = testSession.addMagnet("TEST_MAGNET")
 
-            assertThat(actual).isEqualTo(AddMagnetResult.Failure)
+            assertThat(actual.status).isEqualTo(AddMagnetStatus.Failure)
         }
 
         @Test
