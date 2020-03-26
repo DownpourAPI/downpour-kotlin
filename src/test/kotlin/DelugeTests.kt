@@ -979,7 +979,7 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            assertThatThrownBy { testSession.pauseTorrent("TEST_HASH") }
+            assertThatThrownBy { testSession.setMaxUploadSpeed("TEST_HASH", 1024.0) }
                 .isInstanceOf(FuelError::class.java)
         }
     }
@@ -1021,7 +1021,49 @@ class DelugeTests {
             every { client.executeRequest(any()).responseMessage } returns "Server Error"
             FuelManager.instance.client = client
 
-            assertThatThrownBy { testSession.getTorrentDetails("TEST_HASH") }
+            assertThatThrownBy { testSession.setMaxDownloadSpeed("TEST_HASH", 1024.0) }
+                .isInstanceOf(FuelError::class.java)
+        }
+    }
+
+    @Nested
+    inner class ForceRecheck {
+        @Test
+        fun `success result returns SUCCESS enum`() {
+            val returnedJson = """{"id": 1, "result": null, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.forceRecheck("TEST_HASH")
+
+            assertThat(actual).isEqualTo(DownpourResult.SUCCESS)
+        }
+
+        @Test
+        fun `failure result returns FAILURE enum`() {
+            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.forceRecheck("TEST_HASH")
+
+            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+        }
+
+        @Test
+        fun `500 error returns FAILURE enum`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            assertThatThrownBy { testSession.forceRecheck("TEST_HASH") }
                 .isInstanceOf(FuelError::class.java)
         }
     }
