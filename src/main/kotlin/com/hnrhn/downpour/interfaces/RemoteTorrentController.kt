@@ -20,9 +20,9 @@ interface RemoteTorrentController {
 
     fun addTorrentFile(torrentFile: File): AddTorrentFileResult
 
-    fun setMaxDownloadSpeed(torrentHash: String): DownpourResult
+    fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult
 
-    fun setMaxUploadSpeed(torrentHash: String): DownpourResult
+    fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult
 
     fun forceRecheck(torrentHash: String): DownpourResult
 
