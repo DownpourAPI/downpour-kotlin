@@ -8,6 +8,7 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import java.io.File
+import java.util.*
 
 @UnstableDefault
 class DelugeWebSession: RemoteTorrentController {
@@ -56,10 +57,8 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun addMagnet(magnetLink: String): AddMagnetResult {
-        val payload = AddMagnetPayload(magnetLink)
-
         val response = Fuel.post(apiEndpoint)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1,"method":"core.add_torrent_magnet","params":["$magnetLink",{}]}""")
             .header("Cookie", cookie)
             .response()
             .third
@@ -86,10 +85,10 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
-        val payload = AddTorrentFilePayload(torrentFile)
+        val fileDump: String = Base64.getEncoder().encodeToString(torrentFile.readBytes())
 
         val response = Fuel.post(apiEndpoint)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1, "method":"core.add_torrent_file", "params":["file","$fileDump",{}]}""")
             .header("Cookie", cookie)
             .response()
             .third
@@ -116,10 +115,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
-        val singleTorrentPayload = GetTorrentDetailsPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .jsonBody(singleTorrentPayload.toString())
+            .jsonBody("""{"id":1,"method":"core.get_torrent_status","params":["$torrentHash", []]}""")
             .response()
 
         val (data, error) = response.third
@@ -134,11 +132,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
-        val maxRatioPayload = MaxRatioPayload(torrentHash, maxRatio)
-
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .jsonBody(maxRatioPayload.toString())
+            .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"stop_at_ratio":true,"stop_ratio":$maxRatio}]}""")
             .response()
             .third
 
@@ -161,10 +157,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun getAllTorrents(): List<Torrent> {
-        val allTorrentsPayload = GetAllTorrentsPayload()
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .jsonBody(allTorrentsPayload.toString())
+            .jsonBody("""{"id": 1,"method":"core.get_torrents_status","params":[{}, []]}""")
             .response()
 
         val (data, error) = response.third
@@ -188,10 +183,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun removeTorrent(torrentHash: String, withData: Boolean): DownpourResult {
-        val payload = RemoveTorrentPayload(torrentHash, withData)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1,"method":"core.remove_torrent","params":["$torrentHash",$withData]}""")
             .response()
             .third
 
@@ -214,10 +208,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun pauseTorrent(torrentHash: String): DownpourResult {
-        val payload = PauseTorrentPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1,"method":"core.pause_torrent","params":["$torrentHash"]}""")
             .response()
             .third
 
@@ -240,10 +233,9 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun resumeTorrent(torrentHash: String): DownpourResult {
-        val payload = ResumeTorrentPayload(torrentHash)
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", this.cookie)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1,"method":"core.resume_torrent","params":["$torrentHash"]}""")
             .response()
             .third
 
