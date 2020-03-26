@@ -37,11 +37,11 @@ class RutorrentSession : RemoteTorrentController {
         TODO("Not yet implemented")
     }
 
-    override fun setMaxDownloadSpeed(torrentHash: String): DownpourResult {
+    override fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
         TODO("Not yet implemented")
     }
 
-    override fun setMaxUploadSpeed(torrentHash: String): DownpourResult {
+    override fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
         TODO("Not yet implemented")
     }
 

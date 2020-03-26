@@ -941,4 +941,88 @@ class DelugeTests {
                 .isInstanceOf(FuelError::class.java)
         }
     }
+
+    @Nested
+    inner class SetMaxUploadSpeed {
+        @Test
+        fun `success result returns SUCCESS enum`() {
+            val returnedJson = """{"id": 1, "result": true, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.setMaxUploadSpeed("TEST_HASH", 1024.0)
+
+            assertThat(actual).isEqualTo(DownpourResult.SUCCESS)
+        }
+
+        @Test
+        fun `failure result returns FAILURE enum`() {
+            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.setMaxUploadSpeed("TEST_HASH", 1024.0)
+
+            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+        }
+
+        @Test
+        fun `500 error returns FAILURE enum`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            assertThatThrownBy { testSession.pauseTorrent("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
+        }
+    }
+
+    @Nested
+    inner class SetMaxDownloadSpeed {
+        @Test
+        fun `success result returns SUCCESS enum`() {
+            val returnedJson = """{"id": 1, "result": true, "error": null}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.setMaxDownloadSpeed("TEST_HASH", 1024.0)
+
+            assertThat(actual).isEqualTo(DownpourResult.SUCCESS)
+        }
+
+        @Test
+        fun `failure result returns FAILURE enum`() {
+            val returnedJson = """{"id": 1, "result": null, "error": {"message": "Unit Test Failure", "code": -1}}"""
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 200
+            every { client.executeRequest(any()).responseMessage } returns "OK"
+            every { client.executeRequest(any()).data } returns returnedJson.toByteArray()
+            FuelManager.instance.client = client
+
+            val actual = testSession.setMaxDownloadSpeed("TEST_HASH", 1024.0)
+
+            assertThat(actual).isEqualTo(DownpourResult.FAILURE)
+        }
+
+        @Test
+        fun `500 error returns FAILURE enum`() {
+            val client = mockk<Client>()
+            every { client.executeRequest(any()).statusCode } returns 500
+            every { client.executeRequest(any()).responseMessage } returns "Server Error"
+            FuelManager.instance.client = client
+
+            assertThatThrownBy { testSession.getTorrentDetails("TEST_HASH") }
+                .isInstanceOf(FuelError::class.java)
+        }
+    }
 }
