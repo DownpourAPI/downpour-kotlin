@@ -144,6 +144,11 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
+        // TODO: Unit Test for this
+        if (error != null) {
+            throw error
+        }
+
         return if (data != null) {
             val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
             when (addMagnetResponse.result) {
@@ -193,6 +198,11 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response
 
+        // TODO: Unit Test for this
+        if (error != null) {
+            throw error
+        }
+
         return if (data != null) {
             val jsonResponse = data.toString(Charsets.UTF_8)
             val removeTorrentResult: DelugeResponse = json.parse(DelugeResponse.serializer(), jsonResponse)
@@ -212,7 +222,13 @@ class DelugeWebSession: RemoteTorrentController {
             .jsonBody(json.stringify(PauseTorrentPayload.serializer(), payload))
             .response()
             .third
+
         val (data, error) = response
+
+        // TODO: Unit Test for this
+        if (error != null) {
+            throw error
+        }
 
         return if (data != null) {
             val jsonResponse = data.toString(Charsets.UTF_8)
@@ -235,6 +251,11 @@ class DelugeWebSession: RemoteTorrentController {
             .third
 
         val (data, error) = response
+
+        // TODO: Unit Test for this
+        if (error != null) {
+            throw error
+        }
 
         return if (data != null) {
             val jsonResponse = data.toString(Charsets.UTF_8)
