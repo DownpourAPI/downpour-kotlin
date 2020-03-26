@@ -316,7 +316,28 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     override fun forceRecheck(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+        val response = Fuel.post(apiEndpoint)
+            .header("Cookie", cookie)
+            .jsonBody("""{"id":1,"method":"core.force_recheck","params":[["$torrentHash"]]}""")
+            .response()
+            .third
+
+        val (data, error) = response
+
+        if (error != null) {
+            throw error
+        }
+
+        return if (data != null) {
+            val addMagnetResponse: DelugeResponse = json.parse(DelugeResponse.serializer(), data.toString(Charsets.UTF_8))
+            when (addMagnetResponse.result) {
+                true -> DownpourResult.SUCCESS  // This should never come up, as the server returns a null on success
+                null -> DownpourResult.SUCCESS
+                false -> DownpourResult.FAILURE
+            }
+        } else {
+            DownpourResult.FAILURE
+        }
     }
 
     override fun getFreeSpace(): Long {
