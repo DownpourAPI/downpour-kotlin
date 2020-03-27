@@ -30,9 +30,8 @@ class DelugeWebSession: RemoteTorrentController {
     }
 
     private fun login(password: String): String {
-        val payload = LoginPayload(password)
         val result = Fuel.post(apiEndpoint)
-            .jsonBody(payload.toString())
+            .jsonBody("""{"id":1,"method":"auth.login","params":["$password"]}""")
             .response()
 
         val responseDetails = result.second
