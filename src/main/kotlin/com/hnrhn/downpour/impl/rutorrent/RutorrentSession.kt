@@ -1,24 +1,31 @@
 package com.hnrhn.downpour.impl.rutorrent
 
 import com.github.kittinunf.fuel.Fuel
-import com.hnrhn.downpour.common.*
+import com.github.kittinunf.fuel.core.FuelManager
+import com.hnrhn.downpour.common.AddMagnetResult
+import com.hnrhn.downpour.common.AddTorrentFileResult
+import com.hnrhn.downpour.common.DownpourResult
+import com.hnrhn.downpour.common.Torrent
 import com.hnrhn.downpour.impl.rutorrent.jsonobjects.GetAllTorrentsResponse
 import com.hnrhn.downpour.interfaces.RemoteTorrentController
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import java.io.File
-import java.lang.Exception
 import java.util.*
 
 @UnstableDefault
-class RutorrentSession(private var endpoint: String, user: String, password: String) : RemoteTorrentController {
+class RutorrentSession(basePath: String, user: String, password: String) : RemoteTorrentController {
     private var authHeader: String = Base64.getEncoder().encodeToString("$user:$password".toByteArray())
 
     private val json = Json(JsonConfiguration(ignoreUnknownKeys = true))
 
+    init {
+        FuelManager.instance.basePath = basePath
+    }
+
     override fun getTorrentDetails(torrentHash: String): Torrent? {
-        val result = Fuel.post(endpoint)
+        val result = Fuel.post("/plugins/httprpc/action.php")
             .header("Authorization" to "Basic $authHeader")
             .body("""
                 <?xml version='1.0'?>
@@ -385,7 +392,7 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun getAllTorrents(): List<Torrent> {
-        val result = Fuel.post(endpoint, listOf("mode" to "list", "cmd" to "d.connection_current="))
+        val result = Fuel.post("/plugins/httprpc/action.php", listOf("mode" to "list", "cmd" to "d.connection_current="))
             .header("Authorization" to "Basic $authHeader")
             .response()
             .third
@@ -495,7 +502,7 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
             </methodCall>
         """.trim()
 
-        val result = Fuel.post(endpoint)
+        val result = Fuel.post("/plugins/httprpc/action.php")
             .header("Authorization" to "Basic $authHeader")
             .body(bodyString)
             .response()
@@ -521,7 +528,7 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun pauseTorrent(torrentHash: String): DownpourResult {
-        val result = Fuel.post(endpoint, listOf("mode" to "pause", "hash" to torrentHash))
+        val result = Fuel.post("/plugins/httprpc/action.php", listOf("mode" to "pause", "hash" to torrentHash))
             .header("Authorization" to "Basic $authHeader")
             .response()
             .third
@@ -545,7 +552,7 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun resumeTorrent(torrentHash: String): DownpourResult {
-        val result = Fuel.post(endpoint, listOf("mode" to "start", "hash" to torrentHash))
+        val result = Fuel.post("/plugins/httprpc/action.php", listOf("mode" to "start", "hash" to torrentHash))
             .header("Authorization" to "Basic $authHeader")
             .response()
             .third
@@ -569,7 +576,30 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun addMagnet(magnetLink: String): AddMagnetResult {
-        TODO("Not yet implemented")
+        val result = Fuel.post("/php/addtorrent.php", listOf("url" to magnetLink))
+            .header("Authorization" to "Basic $authHeader")
+            .response()
+            .third
+
+        val (responseBody, error) = result
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val responseString = responseBody.toString(Charsets.UTF_8)
+            return if (responseString.endsWith("success\");")) {
+                val hash = Regex("btih:(.*?)&").find(magnetLink)!!.groupValues[1].toUpperCase()
+
+                AddMagnetResult.success(hash)
+            } else {
+                AddMagnetResult.failure()
+            }
+        }
+
+
+        return AddMagnetResult.failure()
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
