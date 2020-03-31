@@ -19,7 +19,7 @@ class DelugeWebSession: RemoteTorrentController {
     private var cookie: String
     private val apiEndpoint: String
 
-    private val json = Json(JsonConfiguration(strictMode = false))
+    private val json = Json(JsonConfiguration(ignoreUnknownKeys = true))
 
 
     // TODO: Remove this and separate tests properly.
