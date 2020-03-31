@@ -369,24 +369,28 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
 
             val results = re.findAll(responseString)
 
-            val reses = results.map { res -> res.groupValues[1] }.toList()
+            val resultValues = results.map { res -> res.groupValues[1] }.toList()
+
+            if (resultValues.filter { r -> r == "Unsupported target type found." }.any()) {
+                throw Error("Unsupported target type found. Is your info-hash correct?")
+            }
 
             return Torrent(
                 torrentHash,
-                reses[0],
-                reses[1].toLong(),
-                reses[2].toLong(),
-                reses[3].toInt(),
-                reses[4].toInt(),
-                reses[5].toDouble() / 1000,
-                reses[6].toLong(),
-                (reses[11].toDouble() / reses[6].toDouble()) * 100,
-                reses[7],
-                reses[10].toDouble(),
-                reses[11].toLong(),
-                reses[12].toLong(),
+                resultValues[0],
+                resultValues[1].toLong(),
+                resultValues[2].toLong(),
+                resultValues[3].toInt(),
+                resultValues[4].toInt(),
+                resultValues[5].toDouble() / 1000,
+                resultValues[6].toLong(),
+                (resultValues[11].toDouble() / resultValues[6].toDouble()) * 100,
+                resultValues[7],
+                resultValues[10].toDouble(),
+                resultValues[11].toLong(),
+                resultValues[12].toLong(),
                 listOf(),
-                reses[13]
+                resultValues[13]
             )
         }
 
@@ -406,10 +410,14 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
         }
 
         return if (responseBody != null) {
-            val response = json.parse(GetAllTorrentsResponse.serializer(), responseBody.toString(Charsets.UTF_8))
-            response.toTorrents()
+            try {
+                val response = json.parse(GetAllTorrentsResponse.serializer(), responseBody.toString(Charsets.UTF_8))
+                response.toTorrents()
+            } catch (error: Exception) {
+                throw Error("Bad Request")
+            }
         } else {
-            listOf()
+            throw Error()
         }
     }
 
@@ -698,8 +706,12 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
         }
 
         if (responseBody != null) {
-            // TODO: This could theoretically also return an error code
-            return Regex("<i8>(.*?)<").find(responseBody.toString(Charsets.UTF_8))!!.groupValues[1].toLong()
+            return Regex("<i8>(.*?)<")
+                .find(responseBody.toString(Charsets.UTF_8))
+                ?.groupValues
+                ?.get(1)
+                ?.toLong()
+                ?: return -1
         }
 
         return -1
