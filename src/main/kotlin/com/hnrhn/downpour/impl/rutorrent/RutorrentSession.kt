@@ -1,6 +1,7 @@
 package com.hnrhn.downpour.impl.rutorrent
 
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.FuelManager
 import com.hnrhn.downpour.common.AddMagnetResult
 import com.hnrhn.downpour.common.AddTorrentFileResult
@@ -604,15 +605,28 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
-        TODO("Not yet implemented")
-    }
+        val result = Fuel
+            .upload("/php/addtorrent.php")
+            .add(FileDataPart(torrentFile, name = "torrent_file[]", filename = torrentFile.name))
+            .response()
+            .third
 
-    override fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
-        TODO("Not yet implemented")
-    }
+        val (responseBody, error) = result
 
-    override fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
-        TODO("Not yet implemented")
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val responseString = responseBody.toString(Charsets.UTF_8)
+            return if (responseString.endsWith("success\");")) {
+                AddTorrentFileResult.success("")
+            } else {
+                AddTorrentFileResult.failure()
+            }
+        }
+
+        return AddTorrentFileResult.failure()
     }
 
     override fun forceRecheck(torrentHash: String): DownpourResult {
