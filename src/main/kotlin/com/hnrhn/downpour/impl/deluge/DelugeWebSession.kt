@@ -134,7 +134,7 @@ class DelugeWebSession: RemoteTorrentController {
         }
     }
 
-    override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
+    fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"stop_at_ratio":true,"stop_ratio":$maxRatio}]}""")

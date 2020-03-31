@@ -384,10 +384,6 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
         return null
     }
 
-    override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
-        TODO("Not yet implemented")
-    }
-
     override fun getAllTorrents(): List<Torrent> {
         val result = Fuel.post(endpoint, listOf("mode" to "list", "cmd" to "d.connection_current="))
             .header("Authorization" to "Basic $authHeader")

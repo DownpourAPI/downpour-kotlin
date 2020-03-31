@@ -9,8 +9,6 @@ import java.io.File
 interface RemoteTorrentController {
     fun getTorrentDetails(torrentHash: String): Torrent?
 
-    fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult
-
     fun getAllTorrents(): List<Torrent>
 
     fun removeTorrent(torrentHash: String, withData: Boolean = true): DownpourResult
