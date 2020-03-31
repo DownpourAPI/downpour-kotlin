@@ -616,7 +616,39 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
     }
 
     override fun forceRecheck(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+        val result = Fuel.post("/plugins/httprpc/action.php")
+            .body("""
+                <?xml version='1.0'?>
+                <methodCall>
+                	<methodName>d.check_hash</methodName>
+                	<params>
+                		<param>
+                			<value>
+                				<string>$torrentHash</string>
+                			</value>
+                		</param>
+                	</params>
+                </methodCall>
+            """.trimIndent())
+            .response()
+            .third
+
+        val (responseBody, error) = result
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val actionResult = Regex("<i4>(.*?)<").find(responseBody.toString(Charsets.UTF_8))!!.groupValues[1]
+            return if (actionResult == "0") {
+                DownpourResult.SUCCESS
+            } else {
+                DownpourResult.FAILURE
+            }
+        }
+
+        return DownpourResult.FAILURE
     }
 
     override fun getFreeSpace(): Long {
