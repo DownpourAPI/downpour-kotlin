@@ -22,6 +22,7 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
 
     init {
         FuelManager.instance.basePath = basePath
+        FuelManager.instance.baseHeaders = hashMapOf("Authorization" to "Basic $authHeader")
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
@@ -619,6 +620,42 @@ class RutorrentSession(basePath: String, user: String, password: String) : Remot
     }
 
     override fun getFreeSpace(): Long {
-        TODO("Not yet implemented")
+        val allTorrents = getAllTorrents()
+
+        if (allTorrents.isEmpty()) {
+            return -1
+        }
+
+        val hash = allTorrents.first().hash
+
+        val result = Fuel.post("/plugins/httprpc/action.php")
+            .body("""
+                <?xml version='1.0'?>
+                <methodCall>
+                	<methodName>d.free_diskspace</methodName>
+                	<params>
+                		<param>
+                			<value>
+                				<string>$hash</string>
+                			</value>
+                		</param>
+                	</params>
+                </methodCall>
+            """.trimIndent())
+            .response()
+            .third
+
+        val (responseBody, error) = result
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            // TODO: This could theoretically also return an error code
+            return Regex("<i8>(.*?)<").find(responseBody.toString(Charsets.UTF_8))!!.groupValues[1].toLong()
+        }
+
+        return -1
     }
 }
