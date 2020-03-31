@@ -405,7 +405,119 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun removeTorrent(torrentHash: String, withData: Boolean): DownpourResult {
-        TODO("Not yet implemented")
+        val withDataString = """
+            <value>
+                <struct>
+                    <member>
+                        <name>methodName</name>
+                        <value>
+                            <string>d.custom5.set</string>
+                        </value>
+                    </member>
+                    <member>
+                        <name>params</name>
+                        <value>
+                            <array>
+                                <data>
+                                    <value>
+                                        <string>$torrentHash</string>
+                                    </value>
+                                    <value>
+                                        <string>1</string>
+                                    </value>
+                                </data>
+                            </array>
+                        </value>
+                    </member>
+                </struct>
+            </value>
+        """.trimIndent()
+
+        val bodyString = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <methodCall>
+                <methodName>system.multicall</methodName>
+                <params>
+                    <param>
+                        <value>
+                            <array>
+                                <data>
+                                    ${if (withData) withDataString else ""}
+                                    <value>
+                                        <struct>
+                                            <member>
+                                                <name>methodName</name>
+                                                <value>
+                                                    <string>d.delete_tied</string>
+                                                </value>
+                                            </member>
+                                            <member>
+                                                <name>params</name>
+                                                <value>
+                                                    <array>
+                                                        <data>
+                                                            <value>
+                                                                <string>$torrentHash</string>
+                                                            </value>
+                                                        </data>
+                                                    </array>
+                                                </value>
+                                            </member>
+                                        </struct>
+                                    </value>
+                                    <value>
+                                        <struct>
+                                            <member>
+                                                <name>methodName</name>
+                                                <value>
+                                                    <string>d.erase</string>
+                                                </value>
+                                            </member>
+                                            <member>
+                                                <name>params</name>
+                                                <value>
+                                                    <array>
+                                                        <data>
+                                                            <value>
+                                                                <string>$torrentHash</string>
+                                                            </value>
+                                                        </data>
+                                                    </array>
+                                                </value>
+                                            </member>
+                                        </struct>
+                                    </value>
+                                </data>
+                            </array>
+                        </value>
+                    </param>
+                </params>
+            </methodCall>
+        """.trim()
+
+        val result = Fuel.post(endpoint)
+            .header("Authorization" to "Basic $authHeader")
+            .body(bodyString)
+            .response()
+
+        val (responseBody, error) = result.third
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val responseString = responseBody.toString(Charsets.UTF_8)
+            val re = Regex("<(?:i4|string)>(.*?)<")
+            val responseValues = re.findAll(responseString).map { match -> match.groupValues[1] }.toList()
+            return if (responseValues[0] == "1" && responseValues[1] == "0" && responseValues[1] == "0") {
+                DownpourResult.SUCCESS
+            } else {
+                DownpourResult.FAILURE
+            }
+        }
+
+        return DownpourResult.FAILURE
     }
 
     override fun pauseTorrent(torrentHash: String): DownpourResult {
