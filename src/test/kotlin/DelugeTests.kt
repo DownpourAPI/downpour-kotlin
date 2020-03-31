@@ -1,11 +1,13 @@
 import com.github.kittinunf.fuel.core.Client
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
+import com.hnrhn.downpour.common.AddMagnetStatus
+import com.hnrhn.downpour.common.AddTorrentFileStatus
+import com.hnrhn.downpour.common.DownpourResult
 import com.hnrhn.downpour.impl.deluge.DelugeWebSession
 import com.hnrhn.downpour.impl.deluge.jsonobjects.*
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.serialization.UnstableDefault
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -31,7 +33,7 @@ class DelugeTests {
             FuelManager.instance.client = client
 
             val expected = listOf(
-                Torrent(
+                DelugeTorrent(
                     "",
                     23030,
                     true,
@@ -144,7 +146,7 @@ class DelugeTests {
                     2.0,
                     true
                 ),
-                Torrent(
+                DelugeTorrent(
                     "",
                     34332,
                     true,
@@ -596,7 +598,7 @@ class DelugeTests {
             every { client.executeRequest(any()).data } returns returnedJson.toByteArray(Charsets.UTF_8)
             FuelManager.instance.client = client
 
-            val expected = Torrent(
+            val expected = DelugeTorrent(
                 "",
                 88528,
                 true,

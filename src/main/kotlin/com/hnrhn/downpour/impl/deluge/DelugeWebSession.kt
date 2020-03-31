@@ -2,6 +2,10 @@ package com.hnrhn.downpour.impl.deluge
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.hnrhn.downpour.common.AddMagnetResult
+import com.hnrhn.downpour.common.AddTorrentFileResult
+import com.hnrhn.downpour.common.DownpourResult
+import com.hnrhn.downpour.common.Torrent
 import com.hnrhn.downpour.impl.deluge.jsonobjects.*
 import com.hnrhn.downpour.interfaces.RemoteTorrentController
 import kotlinx.serialization.UnstableDefault
@@ -72,15 +76,15 @@ class DelugeWebSession: RemoteTorrentController {
             val addMagnetResponse = json.parse(AddMagnetResponse.serializer(), data.toString(Charsets.UTF_8))
             if (addMagnetResponse.error == null) {
                 if (addMagnetResponse.result == null) {
-                    return AddMagnetResult.AlreadyExists()
+                    return AddMagnetResult.alreadyExists()
                 }
-                return AddMagnetResult.Success(addMagnetResponse.result)
+                return AddMagnetResult.success(addMagnetResponse.result)
             }
 
-            return AddMagnetResult.Failure()
+            return AddMagnetResult.failure()
         }
 
-        return AddMagnetResult.Failure()
+        return AddMagnetResult.failure()
     }
 
     override fun addTorrentFile(torrentFile: File): AddTorrentFileResult {
@@ -102,15 +106,15 @@ class DelugeWebSession: RemoteTorrentController {
             val addTorrentFileResponse = json.parse(AddTorrentFileResponse.serializer(), data.toString(Charsets.UTF_8))
             if (addTorrentFileResponse.error == null) {
                 if (addTorrentFileResponse.result == null) {
-                    return AddTorrentFileResult.AlreadyExists()
+                    return AddTorrentFileResult.alreadyExists()
                 }
-                return AddTorrentFileResult.Success(addTorrentFileResponse.result)
+                return AddTorrentFileResult.success(addTorrentFileResponse.result)
             }
 
-            return AddTorrentFileResult.Failure()
+            return AddTorrentFileResult.failure()
         }
 
-        return AddTorrentFileResult.Failure()
+        return AddTorrentFileResult.failure()
     }
 
     override fun getTorrentDetails(torrentHash: String): Torrent? {
@@ -124,7 +128,7 @@ class DelugeWebSession: RemoteTorrentController {
         return if (data != null) {
             val jsonResponse = data.toString(Charsets.UTF_8)
             val torrentDetailsResponse = json.parse(GetTorrentResponse.serializer(), jsonResponse)
-            torrentDetailsResponse.result
+            torrentDetailsResponse.result?.toTorrent()
         } else {
             throw error!!
         }
@@ -163,7 +167,7 @@ class DelugeWebSession: RemoteTorrentController {
 
         val (data, error) = response.third
 
-        val allTorrents = arrayListOf<Torrent>()
+        val allTorrents = arrayListOf<DelugeTorrent>()
         if (data != null) {
             val jsonResponse = data.toString(Charsets.UTF_8)
             val torrentResponse: GetAllTorrentsResponse = json.parse(GetAllTorrentsResponse.serializer(), jsonResponse)
@@ -178,7 +182,7 @@ class DelugeWebSession: RemoteTorrentController {
             throw error!!
         }
 
-        return allTorrents
+        return allTorrents.map { delugeTorrent -> delugeTorrent.toTorrent() }
     }
 
     override fun removeTorrent(torrentHash: String, withData: Boolean): DownpourResult {

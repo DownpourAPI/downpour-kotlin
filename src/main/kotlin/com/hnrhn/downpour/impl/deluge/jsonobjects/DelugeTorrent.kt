@@ -1,10 +1,11 @@
 package com.hnrhn.downpour.impl.deluge.jsonobjects
 
+import com.hnrhn.downpour.common.Torrent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Torrent(
+data class DelugeTorrent(
     val comment: String,
 
     @SerialName("active_time")
@@ -16,7 +17,7 @@ data class Torrent(
     val hash: String,
 
     @SerialName("upload_payload_rate")
-    val uploadPayloadRate: Int,
+    val uploadPayloadRate: Long,
 
     @SerialName("move_completed_path")
     val moveCompletedPath: String,
@@ -44,7 +45,7 @@ data class Torrent(
     val distributedCopies: Double,
 
     @SerialName("download_payload_rate")
-    val downloadPayloadRate: Int,
+    val downloadPayloadRate: Long,
 
     val message: String,
 
@@ -165,4 +166,22 @@ data class Torrent(
 
     @SerialName("is_finished")
     val isFinished: Boolean
-)
+) {
+    fun toTorrent(): Torrent = Torrent(
+        hash,
+        name,
+        uploadPayloadRate,
+        downloadPayloadRate,
+        numberOfSeeds,
+        numberOfPeers,
+        ratio,
+        totalSize,
+        progress,
+        state,
+        timeAdded,
+        totalDone,
+        totalUploaded,
+        files.map { file -> file.toFileInfo() },
+        savePath
+    )
+}

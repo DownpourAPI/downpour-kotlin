@@ -1,6 +1,9 @@
 package com.hnrhn.downpour.impl.rutorrent
 
-import com.hnrhn.downpour.impl.deluge.jsonobjects.*
+import com.hnrhn.downpour.common.AddMagnetResult
+import com.hnrhn.downpour.common.AddTorrentFileResult
+import com.hnrhn.downpour.common.DownpourResult
+import com.hnrhn.downpour.common.Torrent
 import com.hnrhn.downpour.interfaces.RemoteTorrentController
 import java.io.File
 

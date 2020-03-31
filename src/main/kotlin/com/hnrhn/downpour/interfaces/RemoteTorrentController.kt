@@ -1,6 +1,9 @@
 package com.hnrhn.downpour.interfaces
 
-import com.hnrhn.downpour.impl.deluge.jsonobjects.*
+import com.hnrhn.downpour.common.AddMagnetResult
+import com.hnrhn.downpour.common.AddTorrentFileResult
+import com.hnrhn.downpour.common.DownpourResult
+import com.hnrhn.downpour.common.Torrent
 import java.io.File
 
 interface RemoteTorrentController {

@@ -1,4 +1,4 @@
-package com.hnrhn.downpour.impl.deluge.jsonobjects
+package com.hnrhn.downpour.common
 
 enum class AddMagnetStatus {
     Success,
