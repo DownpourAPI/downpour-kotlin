@@ -521,11 +521,51 @@ class RutorrentSession(private var endpoint: String, user: String, password: Str
     }
 
     override fun pauseTorrent(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+        val result = Fuel.post(endpoint, listOf("mode" to "pause", "hash" to torrentHash))
+            .header("Authorization" to "Basic $authHeader")
+            .response()
+            .third
+
+        val (responseBody, error) = result
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val responseString = responseBody.toString(Charsets.UTF_8)
+            return if (responseString == """["0"]""") {
+                DownpourResult.SUCCESS
+            } else {
+                DownpourResult.FAILURE
+            }
+        }
+
+        return DownpourResult.FAILURE
     }
 
     override fun resumeTorrent(torrentHash: String): DownpourResult {
-        TODO("Not yet implemented")
+        val result = Fuel.post(endpoint, listOf("mode" to "start", "hash" to torrentHash))
+            .header("Authorization" to "Basic $authHeader")
+            .response()
+            .third
+
+        val (responseBody, error) = result
+
+        if (error != null) {
+            throw error
+        }
+
+        if (responseBody != null) {
+            val responseString = responseBody.toString(Charsets.UTF_8)
+            return if (responseString == """["0","0"]""") {
+                DownpourResult.SUCCESS
+            } else {
+                DownpourResult.FAILURE
+            }
+        }
+
+        return DownpourResult.FAILURE
     }
 
     override fun addMagnet(magnetLink: String): AddMagnetResult {
