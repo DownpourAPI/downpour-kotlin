@@ -134,7 +134,7 @@ class DelugeWebSession: RemoteTorrentController {
         }
     }
 
-    override fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
+    fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult {
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"stop_at_ratio":true,"stop_ratio":$maxRatio}]}""")
@@ -260,7 +260,7 @@ class DelugeWebSession: RemoteTorrentController {
         }
     }
 
-    override fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
+    fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"max_download_speed":$maxSpeedKibiBytes}]}""")
@@ -285,7 +285,7 @@ class DelugeWebSession: RemoteTorrentController {
         }
     }
 
-    override fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
+    fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult {
         val response = Fuel.post(apiEndpoint)
             .header("Cookie", cookie)
             .jsonBody("""{"id":1,"method":"core.set_torrent_options","params":[["$torrentHash"],{"max_upload_speed":$maxSpeedKibiBytes}]}""")

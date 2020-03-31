@@ -9,8 +9,6 @@ import java.io.File
 interface RemoteTorrentController {
     fun getTorrentDetails(torrentHash: String): Torrent?
 
-    fun setMaxRatio(torrentHash: String, maxRatio: Int): DownpourResult
-
     fun getAllTorrents(): List<Torrent>
 
     fun removeTorrent(torrentHash: String, withData: Boolean = true): DownpourResult
@@ -22,10 +20,6 @@ interface RemoteTorrentController {
     fun addMagnet(magnetLink: String): AddMagnetResult
 
     fun addTorrentFile(torrentFile: File): AddTorrentFileResult
-
-    fun setMaxDownloadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult
-
-    fun setMaxUploadSpeed(torrentHash: String, maxSpeedKibiBytes: Double): DownpourResult
 
     fun forceRecheck(torrentHash: String): DownpourResult
 
